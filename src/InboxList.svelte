@@ -1,52 +1,66 @@
 <script lang="ts">
-    import { 
-        type ProfileType ,
-        getResourceInfoFromDataset
-    } from './util';
-    import { fetch } from '@inrupt/solid-client-authn-browser';
-    import { getSolidDataset, 
-             getContainedResourceUrlAll,
-    } from '@inrupt/solid-client';
+    import { loadInbox, watchInbox, prettyUris } from './inbox';
 
     export let inbox : string;
-    export let profile : ProfileType;
+    export let socket : WebSocket;
+    export let selected : string;
+    export let newMail : boolean = false;
 
     let inboxResources = loadInbox(inbox);
+    let current : string = "";
 
-    async function loadInbox(inbox: string) {
-        const dataset = await getSolidDataset(inbox, {
-            fetch: fetch
-        });
+    socket = watchInbox(inbox, () => {
+        inboxResources = loadInbox(inbox);
+    });
 
-        let resources = [];
-        
-        let containedResources = getContainedResourceUrlAll(dataset);
-
-        for (let containedResourceUrl of containedResources) { 
-            let resourceInfo = getResourceInfoFromDataset(dataset, containedResourceUrl, inbox);
-            resources.push(resourceInfo);
-        }
-
-        return resources;
-    }
 </script>
-<p><i>{inbox}</i></p>
 
 {#await inboxResources}
 <p>...loading...</p>
 {:then things}
+  <button on:click={ () => newMail = true }>New message</button>
+  <hr/>
+  Current inbox: <div class="activebox" on:click={ () => loadInbox(inbox) }>{inbox} ({things.length})</div>
+  <hr/>
+  <h4>Messages</h4>
   <table class="table">
     <thead>
-        <th>modified</th>
-        <th>resource</th>
+        <th>Actor</th>
+        <th>Type</th>
+        <th>Object</th>
+        <th>Date</th>
     </thead>
     <tbody>
-  {#each things as resource}
-    <tr>
-        <td>{resource.modified}</td>
-        <td>{resource.relativePath}</td>
+  {#each things as mail}
+    <tr class={ current === mail.resource.url ? 'selected' : ''}
+        on:mouseenter={ () => { current = mail.resource.url } }
+        on:mouseleave={ () => { current = undefined} }
+        on:click={ () => { selected = mail.resource.url } }
+        >
+        {#if mail.activity}
+            <td><b>{mail.activity.actor.name ? mail.activity.actor.name : 'Unknown' }</b></td>
+            <td>{prettyUris(mail.activity.types,", ")}</td>
+            <td>{prettyUris(mail.activity.object.types,", ")}</td>
+            <td>{mail.resource.modified.toISOString()}</td>
+        {:else}
+            <td><b>Unknown</b></td>
+            <td>--</td>
+            <td>--</td>
+            <td>{mail.resource.modified.toISOString()}</td>
+        {/if}
     </tr>
   {/each}
    </tbody>
 </table>
 {/await}
+
+<style>
+    .selected {
+        background-color: #f7f7f7;
+    }
+
+    .activebox {
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+</style>

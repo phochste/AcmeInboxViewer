@@ -3,9 +3,15 @@
 	import Logout from './Logout.svelte';
 	import Hello from './Hello.svelte';
 	import InboxList from './InboxList.svelte';
+	import InboxItem from './InboxItem.svelte';
+	import InboxNew from './InboxNew.svelte';
 
 	export let name: string;
+	
 	let profile: any;
+	let selected: string;
+	let newMail: boolean = false;
+
 </script>
 
 <nav class="navbar navbar-default">
@@ -25,5 +31,11 @@
 
 {#if profile}
   <Hello {profile}/>
-  <InboxList inbox={profile.inbox} {profile}/>
+  {#if newMail}
+	 <InboxNew inbox={profile.inbox} bind:newMail={newMail} {profile}/>
+  {:else if selected}
+     <InboxItem inbox={profile.inbox} bind:selected={selected}/>
+  {:else}
+  	 <InboxList inbox={profile.inbox} bind:selected={selected} bind:newMail={newMail}/>
+  {/if}
 {/if}

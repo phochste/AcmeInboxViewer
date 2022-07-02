@@ -1,11 +1,4 @@
 import { fetch , getDefaultSession } from '@inrupt/solid-client-authn-browser';
-import {
-    getThing ,
-    getDatetime ,
-    getInteger ,
-    getUrlAll ,
-    type SolidDataset
-} from '@inrupt/solid-client';
 import * as N3 from 'n3';
 
 /* 
@@ -42,8 +35,9 @@ export type ProfileType = {
     givenName: string | undefined,
     familyName: string | undefined,
     name: string | undefined,
-    image: string | undefined
-    inbox: string | undefined
+    image: string | undefined,
+    inbox: string | undefined,
+    storage: string | undefined
 };
 
 export async function fetchUserProfile(webId: string) : Promise<ProfileType> {
@@ -58,6 +52,8 @@ export async function fetchUserProfile(webId: string) : Promise<ProfileType> {
           = profileQuads.find(quad => quad.predicate.value === 'http://xmlns.com/foaf/0.1/img');
     const inboxQuad
           = profileQuads.find(quad => quad.predicate.value === 'http://www.w3.org/ns/ldp#inbox');
+    const storageQuad
+          = profileQuads.find(quad => quad.predicate.value === 'http://www.w3.org/ns/pim/space#storage');
 
     return {
         webId: webId ,
@@ -65,37 +61,8 @@ export async function fetchUserProfile(webId: string) : Promise<ProfileType> {
         familyName: familyNameQuad?.object.value ,
         name:  nameQuad?.object.value ,
         image: imageQuad?.object.value,
-        inbox: inboxQuad?.object.value
+        inbox: inboxQuad?.object.value,
+        storage: storageQuad?.object.value
     };
 }
 
-/**
- * From BashLib https://github.com/SolidLabResearch/Bashlib
- */
-export type ResourceInfo = {
-    url: string,
-    relativePath?: string,
-    isDir: boolean,
-    modified?: Date | null,
-    mtime?: number | null,
-    size?: number | null,
-    types?: string[],
-}
-
-export function getResourceInfoFromDataset(dataset: SolidDataset, resourceUrl: string, baseUrl?: string) {
-    const thing = getThing(dataset, resourceUrl)
-    let resourceInfo: ResourceInfo | undefined;
-    if (thing) {
-      const modified = getDatetime(thing, 'http://purl.org/dc/terms/modified')
-      const mtime = getInteger(thing, 'http://www.w3.org/ns/posix/stat#mtime')
-      const size = getInteger(thing, 'http://www.w3.org/ns/posix/stat#size')
-      const types = getUrlAll(thing, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
-      resourceInfo = {
-        url: resourceUrl,
-        relativePath: baseUrl ? resourceUrl.slice(baseUrl.length) : undefined, 
-        isDir: types.indexOf('http://www.w3.org/ns/ldp#Container') !== -1 || types.indexOf('http://www.w3.org/ns/ldp#BasicContainer') !== -1,
-        modified, mtime, size, types
-      }
-    }
-    return resourceInfo
- }

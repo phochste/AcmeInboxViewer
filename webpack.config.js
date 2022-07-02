@@ -18,7 +18,7 @@ module.exports = {
 		extensions: ['.tsx', '.ts' , '.mjs' , '.js', '.svelte'],
 		mainFields: ['svelte', 'browser', 'module', 'main'],
 		fallback: {
-			"Buffer": require.resolve('buffer/')
+			"Buffer": require.resolve('buffer/') 
 		}
 	},
 	output: {
