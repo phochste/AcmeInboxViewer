@@ -1,18 +1,19 @@
 <script lang="ts">
     import { getContainerList, watchContainer, type FileInfo } from './container';
 
-    export let resource : string = "";
+    export let container : string;
+    export let selection : string;
 
     let containerStack : string[] = [ ];
     let list : FileInfo[] = [];
     let socket : WebSocket;
 
-    changeContainer({ url: resource });
+    changeContainer({ url: container});
 
     async function reloadContainer() {
-        console.log(`reload ${resource}`);
+        console.log(`reload ${container}`);
 
-        let next = await getContainerList(resource);
+        let next = await getContainerList(container);
 
         if (typeof(next) === 'undefined') {
             // Do nothing...
@@ -22,22 +23,27 @@
         }
     }
 
-    async function changeContainer(container : FileInfo) {
-        if (container) {
-            
-            containerStack.push(resource);
+    async function changeResource(file : FileInfo) {
+        selection = file.url;
+    }
 
-            let next = await getContainerList(container.url);
+    async function changeContainer(dir : FileInfo) {
+        if (dir) {
+            
+            containerStack.push(container);
+
+            let next = await getContainerList(dir.url);
 
             if (typeof(next) === 'undefined') {
                 // Do nothing...
                 containerStack.pop();
             }
             else {
-                resource = container.url;
+                container = dir.url;
+                selection = dir.url;
                 list = next;
                 if (socket) socket.close();
-                socket = watchContainer(resource, (msg) => {
+                socket = watchContainer(container, (msg) => {
                     reloadContainer();
                 });
             }
@@ -50,10 +56,11 @@
                 // Do nothing...
             }
             else {
-                resource = url;
+                container = url;
+                selection = url;
                 list = next;
                 if (socket) socket.close();
-                socket = watchContainer(resource, (msg) => {
+                socket = watchContainer(container, (msg) => {
                     reloadContainer();
                 }); 
             }
@@ -61,10 +68,6 @@
     }
 
 </script>
-
-<p> 
-    <a href="{resource}" on:click|preventDefault={reloadContainer}><b>{resource}</b></a>
-</p>
 
 {#if list}
  <ul>
@@ -76,12 +79,12 @@
   {#each list as item} 
     <li>
     {#if item.isDir}
-       <div class="dir" on:click|preventDefault={() => changeContainer(item)}>
-            <a href="{item.url}">{item.name}</a>
+       <div class="dir">
+            <a href="{item.url}" on:click|preventDefault={() => changeContainer(item)} >{item.name}</a>
        </div>
     {:else}
        <div class="file">
-            <a href="{item.url}">{item.name}</a>
+            <a href="{item.url}" on:click|preventDefault={ () => changeResource(item)}>{item.name}</a>
        </div>
     {/if}
     </li>

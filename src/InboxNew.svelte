@@ -2,6 +2,12 @@
     import Container from './Container.svelte';
     import type { ProfileType } from "./util";
 
+    let error : number ;
+
+    const TARGET_ERROR = 0x01;
+    const TYPE_ERROR   = 0x02;
+    const OBJECT_ERROR = 0x04;
+
     export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
@@ -27,8 +33,49 @@
     let notificationType;
     let notificationSubType;
 
+    let target : string ;
+
+    let container : string = profile.storage;
+    let object : string;
+
+    function sendNotification() : void {
+        error = validateFields();
+
+        if (error == 0) {
+            newMail = false;
+        }
+    }
+
+    function validateFields() : number {
+        let error;
+
+        if (target && target.match(/^http(s)?:\/\//)) {
+            error &= ~TARGET_ERROR;
+        }
+        else {
+            error |= TARGET_ERROR;
+        }
+
+        if (notificationType && notificationType.id > 0) {
+            error &= ~TYPE_ERROR;
+        }
+        else {
+            error |= TYPE_ERROR;
+        }
+
+        if (object) {
+            error &= ~OBJECT_ERROR;
+        }
+        else {
+            error |= OBJECT_ERROR;
+        }
+
+        return error;
+    }
+
 </script>
 
+<button on:click={sendNotification}>Send</button>
 <button on:click={ () => newMail = false}>Cancel</button>
 
 <h4>New notification</h4>
@@ -36,12 +83,15 @@
 <table class="table">
     <tbody>
     <tr>
-        <th>Actor</th>
-        <td> {profile.webId} </td>
-    </tr>
-    <tr>
-        <th>Origin</th>
-        <td>Acme InboxViewer</td>
+        <th>Target</th>
+        <td>
+            <input type="text" size="80" on:change={ (e) => { target = e.target.value}}/>
+        </td>
+        <td>
+            {#if error & TARGET_ERROR}
+            <span class="error">Invalid target</span>
+            {/if}
+        </td>
     </tr>
     <tr>
         <th>Type</th>
@@ -61,6 +111,11 @@
                 {/each}
             </select>
         </td>
+        <td>
+            {#if error & TYPE_ERROR}
+            <span class="error">Need a type</span>
+            {/if}
+        </td>
     </tr>
     {#if inReplyTo}
     <tr>
@@ -68,13 +123,26 @@
         <td>
             {inReplyTo}
         </td>
+        <td></td>
     </tr>
     {/if}
     <tr>
         <th>Object</th>
         <td>
-            <Container resource={profile.storage}/>
+            <input type="text" bind:value={object} size="80" readonly/>
+            <Container container={container} bind:selection={object}/>
+        </td>
+        <td>
+            {#if error & OBJECT_ERROR}
+            <span class="error">Need an object</span>
+            {/if}
         </td>
     </tr>
     </tbody>
 </table>
+
+<style>
+    .error {
+        color: red;
+    }
+</style>
