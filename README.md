@@ -1,13 +1,14 @@
-# AcmeBase
+# Acme InboxViewer
 
-A base implementation of a Solid App with login using svelte
+An implemenatation of a [Mellon project](https://knows.idlab.ugent.be/projects/mellon/) LDN inbox
+based on Solid.
+
+***Very alpha code***
 
 # Usage
 
 ```
-npx degit phochste/AcmeBase my-solid-app
-
-cd my-svelte-project
+cd AcmeInboxViewer
 npm install
 npm run dev
 ```

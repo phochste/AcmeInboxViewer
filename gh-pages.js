@@ -4,7 +4,7 @@ ghpages.publish(
 	'public', // path to public directory
 	{
 		branch: 'gh-pages',
-		repo: 'git@github.com:phochste/AcmeBase.git', // Update to point to your repository
+		repo: 'git@github.com:phochste/AcmeInboxViewer.git', // Update to point to your repository
 		user: {
 			name: 'Patrick Hochstenbach', // update to use your name
 			email: 'patrick.hochstenbach@ugent.be' // Update to use your email

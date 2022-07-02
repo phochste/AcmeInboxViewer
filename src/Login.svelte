@@ -17,7 +17,7 @@
         login({
             oidcIssuer: issuer,
             redirectUrl: window.location.href,
-            clientName: "InboxViewer"
+            clientName: "Acme InboxViewer"
         });
     }
 
