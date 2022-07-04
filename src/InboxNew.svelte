@@ -2,9 +2,9 @@
     import Container from './Container.svelte';
     import type { ProfileType } from "./util";
     import { 
-        as2,
         generateIdentifier, 
         sendNotification,
+        objectBuilder,
         type ActivityType , 
         type AgentType,
         type ObjectType
@@ -78,9 +78,16 @@
             types: [ 'Person' ]
         };
 
+        let objectThing = objectBuilder(object)
+                            .addUrl('https://example.org/cite-as','http://brol.com')
+                            .addStringNoLocale('https://example.org/brol','ok')
+                            .addDecimal('https://example.org/brol',4)
+                            .build();
+
         let objectT : ObjectType = {
             id: object,
-            types: [ 'Document']
+            types: [ 'Document'] ,
+            thing: objectThing
         };
 
         let notification : ActivityType = {

@@ -11,7 +11,9 @@ import {
     type SolidDataset, 
     type Thing,
     thingAsMarkdown,
-    deleteFile
+    deleteFile,
+    buildThing,
+    createThing,
 } from '@inrupt/solid-client';
 import { markdown } from 'markdown';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,8 +27,29 @@ export function prettyThing(thing: Thing) : string {
         return "";
     }
     else {
-        return markdown.toHTML(thingAsMarkdown(thing));
+        let json = thingToJson(thing);
+        let pretty =`
+<table class="table table-bordered">
+<tbody>
+`;
+        for (let key in json) {
+            let value = json[key];
+            if (Array.isArray(value)) {
+                value = value as Array<string>;
+                value = value.join(" ");
+            }
+            
+            value = prettyHttp(value);
+
+            pretty += `<tr><th>${key}</th><td>${value}</td></tr>`;
+        }
+        pretty += `</tbody></table>`;
+        return pretty;
     }
+}
+
+export function prettyHttp(html: string) : string {
+    return html.replace(/(http(s)?[^ ]+)/,"<a href=\"$1\">$1</a>");
 }
 
 export function prettyName(name: string) : string {
@@ -434,11 +457,16 @@ function agentTypeToJson(agent: AgentType) : any | undefined {
     return json;
 }
 
+export function objectBuilder(id: string) {
+    return  buildThing(createThing({ url: id }));
+}
+
 function objectTypeToJson(object: ObjectType) : any | undefined {
     let json : any; 
 
     if (object) {
         json = {};
+
         if (object.id) {
             json['id'] = object.id;
         }
@@ -450,7 +478,61 @@ function objectTypeToJson(object: ObjectType) : any | undefined {
                 json['type'] = object.types;
             }
         }
+        if (object.thing) {
+            let jsonObject = thingToJson(object.thing);
+
+            if (jsonObject) {
+                json = {...json,...jsonObject};
+            }
+        }
     }
+
+    return json;
+}
+
+// This code is a simplification where an object is probably a more
+// extended object than just a thing
+// TODO: refactor and throw it away
+function thingToJson(thing: Thing) : any | undefined {
+    if (! thing) {
+        return undefined;
+    }
+
+    let json : any = { id: thing.url };
+
+    for (let predicate in thing.predicates) {
+        let jpred = predicate.replace("https://www.w3.org/ns/activitystreams#","")
+                             .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#type","type");
+
+        json[jpred] = [];
+
+        let object = thing.predicates[predicate];
+
+        if (object.namedNodes && object.namedNodes.length) {
+            json[jpred].push(...object.namedNodes);
+        }
+
+        if (object.literals) {
+            for (let sch in object.literals) {
+                let values = object.literals[sch];
+                for (let i in values) {
+                    json[jpred].push(values[i]);
+                }
+            }
+        }
+
+        if (object.blankNodes) {
+            console.error(`blank nodes not supported`);
+        }
+
+        json[jpred] = json[jpred].map( item => { 
+           return item.replace("https://www.w3.org/ns/activitystreams#","");
+        });
+
+        if (json[jpred].length == 1) {
+            json[jpred] = json[jpred][0];
+        }
+    }    
 
     return json;
 }

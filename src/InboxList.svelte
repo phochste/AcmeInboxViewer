@@ -9,7 +9,6 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
     export let newMail : boolean = false;
 
     let inboxResources = loadInbox(inbox);
-    let current : string = "";
 
     socket = watchContainer(inbox, () => {
         inboxResources = loadInbox(inbox);
@@ -24,13 +23,13 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
 {#await inboxResources}
 <p>...loading...</p>
 {:then things}
-  <button class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
+  <button  class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
   <hr/>
   Current inbox: <div class="activebox" on:click={ () => loadInbox(inbox) }>{inbox} ({things.length})</div>
   <hr/>
   <h4>Messages</h4>
   {#if things.length}
-  <table class="table">
+  <table class="table table-hover">
     <thead>
         <th>Actor</th>
         <th>Type</th>
@@ -40,11 +39,7 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
     </thead>
     <tbody>
   {#each things as mail}
-    <tr class={ current === mail.resource.url ? 'selected' : ''}
-        on:mouseenter={ () => { current = mail.resource.url } }
-        on:mouseleave={ () => { current = undefined} }
-        on:click={ () => { selected = mail.resource.url } }
-        >
+    <tr on:click={ () => { selected = mail.resource.url } } >
         {#if mail.activity}
             <td><b>{mail.activity.actor.name ? mail.activity.actor.name : 'Unknown' }</b></td>
             <td>{prettyUris(mail.activity.types,", ")}</td>
@@ -68,10 +63,6 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
 {/await}
 
 <style>
-    .selected {
-        background-color: #f7f7f7;
-    }
-
     .activebox {
         font-weight: bold;
         margin-bottom: 20px;

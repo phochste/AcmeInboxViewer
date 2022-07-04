@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { MessageInfo } from './inbox';
     import { prettyThing, prettyUris, prettyName, inboxDataset, loadInboxItem, getActivityFromDataset } from './inbox';
+import main from './main';
 
     export let inbox : string;
     export let selected : string;
@@ -20,7 +21,9 @@
 {:then mail}
 
 <h4>Message detail: <a href="{mail.resource.url}">{mail.resource.url}</a></h4>
-
+{#if mail.activity && mail.activity.types}
+<h2>{prettyUris(mail.activity.types)}</h2>
+{/if}
 <p>
     <b>Actor</b>:
     {#if mail.activity?.actor}
@@ -75,7 +78,7 @@
             {#if mail.activity.context?.thing}
             {@html prettyThing(mail.activity.context.thing)}
             {:else}
-            {mail.activity.context.id}
+            <a href="{mail.activity.context.id}">{mail.activity.context.id}</a>
             {/if}
         </td>
     </tr> 
@@ -87,7 +90,7 @@
             {#if mail.activity.object?.thing}
             {@html prettyThing(mail.activity.object.thing)}
             {:else}
-            {mail.activity.object.id}
+            <a href="{mail.activity.object.id}">{mail.activity.object.id}</a>
             {/if}
         </td>
     </tr>
