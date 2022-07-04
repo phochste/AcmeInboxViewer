@@ -110,17 +110,17 @@ export async function inboxDataset(inbox: string) : Promise<SolidDataset> {
     return dataset;
 }
 
-export async function loadInbox(inbox: string) : Promise<MessageInfo[]> {
+export async function loadInbox(inbox: string) : Promise<Promise<MessageInfo>[]> {
     const dataset = await getSolidDataset(inbox, {
         fetch: fetch
     });
 
-    let resources : MessageInfo[] = [];
+    let resources : Promise<MessageInfo>[] = [];
     
     let containedResources = getContainedResourceUrlAll(dataset);
 
     for (let containedResourceUrl of containedResources) { 
-        let inboxItem = await loadInboxItem(dataset, containedResourceUrl, inbox);
+        let inboxItem = loadInboxItem(dataset, containedResourceUrl, inbox);
         resources.push(inboxItem);
     }
 

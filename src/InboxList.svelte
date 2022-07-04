@@ -7,11 +7,15 @@
     export let selected : string;
     export let newMail : boolean = false;
 
-    let inboxResources = loadInbox(inbox);
+    let inboxResources : Promise<MessageInfo>[] = listAll(inbox);
 
-    socket = watchContainer(inbox, () => {
-        inboxResources = loadInbox(inbox);
+    socket = watchContainer(inbox, async () => {
+        inboxResources = await loadInbox(inbox);
     });
+
+    async function listAll(inbox) : Promise<MessageInfo>[] {
+        inboxResources = await loadInbox(inbox);
+    }
 
     async function deleteMail(mail : MessageInfo) {
         await deleteInboxItem(mail);
@@ -19,16 +23,14 @@
 
 </script>
 
-{#await inboxResources}
-<p>...loading...</p>
-{:then things}
-  <button  class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
-  <hr/>
-  <button class="btn btn-info" on:click={ () => loadInbox(inbox) }>🔃 {inbox} ({things.length})</button>
-  <hr/>
-  <h4>Messages</h4>
-  {#if things.length}
-  <table class="table table-hover">
+<button  class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
+<hr/>
+<button class="btn btn-info" on:click={() => listAll(inbox) }>🔃 {inbox} ({inboxResources.length})</button>
+<hr/>
+
+<h4>Messages</h4>
+{#if inboxResources.length}
+<table class="table table-hover">
     <thead>
         <th>Actor</th>
         <th>Type</th>
@@ -37,7 +39,9 @@
         <th></th>
     </thead>
     <tbody>
-  {#each things as mail}
+  {#each inboxResources as promise}
+    {#await promise}
+    {:then mail}
     <tr on:click={ () => { selected = mail.resource.url } } >
         {#if mail.activity}
             <td><b>{mail.activity.actor.name ? mail.activity.actor.name : 'Unknown' }</b></td>
@@ -53,10 +57,10 @@
             <td><button on:click|stopPropagation={() => deleteMail(mail)}>🗑</button></td>
         {/if}
     </tr>
+    {/await}
   {/each}
-   </tbody>
-   </table>
-   {:else}
-   (no messages available)
-   {/if}
-{/await}
+  </tbody>
+  </table>
+  {:else}
+  (no messages available)
+  {/if}
