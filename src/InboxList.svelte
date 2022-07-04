@@ -1,7 +1,6 @@
 <script lang="ts">
     import { deleteInboxItem, loadInbox, prettyUris, type MessageInfo } from './inbox';
     import { watchContainer } from './container';
-import { thingAsMarkdown } from '@inrupt/solid-client';
 
     export let inbox : string;
     export let socket : WebSocket;
@@ -25,7 +24,7 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
 {:then things}
   <button  class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
   <hr/>
-  Current inbox: <div class="activebox" on:click={ () => loadInbox(inbox) }>{inbox} ({things.length})</div>
+  <button class="btn btn-info" on:click={ () => loadInbox(inbox) }>🔃 {inbox} ({things.length})</button>
   <hr/>
   <h4>Messages</h4>
   {#if things.length}
@@ -61,10 +60,3 @@ import { thingAsMarkdown } from '@inrupt/solid-client';
    (no messages available)
    {/if}
 {/await}
-
-<style>
-    .activebox {
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-</style>
