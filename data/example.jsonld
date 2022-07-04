@@ -1,0 +1,30 @@
+{
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "id": "urn:uuid:36b87b70-c6db-4c24-87f3-433e6296db44",
+    "type": "Announce",
+    "published": "2013-05-13",
+    "actor": {
+        "id": "https://scholexplorer.openaire.eu/#about",
+        "name": "OpenAIRE ScholeXplorer",
+        "inbox": "https://scholexplorer.openaire.eu/inbox/",
+        "type": "Organization"
+    },
+    "origin": {
+        "id": "https://mellonscholarlycommunication.github.io/about#us",
+        "name": "UGent/Mellon JSON-LD/AS2 Notification Generator for Scholix",
+        "type": "Application"
+    },
+    "object": {
+        "id": "urn:uuid:85e86b19-1711-4249-ada5-e2f75508ec6d",
+        "type": "Relationship",
+        "relationship": "http://www.scholix.org/IsReferencedBy",
+        "subject": "https://doi.org/10.3410/f.718219106.793489091",
+        "object": "https://biblio.ugent.be/publication/5830187"
+    },
+    "context": "https://biblio.ugent.be/publication/5830187",
+    "target": {
+        "id": "https://bellow2.ugent.be/test/scholix/biblio/biblio.ugent.be/about#us",
+        "inbox": "https://bellow2.ugent.be/test/scholix/biblio/biblio.ugent.be/inbox/",
+        "type": "Organization"
+    }
+}

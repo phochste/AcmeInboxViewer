@@ -1,0 +1,30 @@
+{
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "id": "urn:uuid:22eec082-064f-48b7-9fc8-84de96e3c650",
+    "type": "Announce",
+    "published": "2018-01-01",
+    "actor": {
+        "id": "https://scholexplorer.openaire.eu/#about",
+        "name": "OpenAIRE ScholeXplorer",
+        "inbox": "https://scholexplorer.openaire.eu/inbox/",
+        "type": "Organization"
+    },
+    "origin": {
+        "id": "https://mellonscholarlycommunication.github.io/about#us",
+        "name": "UGent/Mellon JSON-LD/AS2 Notification Generator for Scholix",
+        "type": "Application"
+    },
+    "object": {
+        "id": "urn:uuid:e0cfe7a1-3028-436b-b671-d8600c7893c7",
+        "type": "Relationship",
+        "relationship": "http://www.scholix.org/IsReferencedBy",
+        "subject": "https://dx.doi.org/10.6084/m9.figshare.1397563.v1",
+        "object": "https://academic.oup.com/nar/article/46/6/e31/4763688"
+    },
+    "context": "https://academic.oup.com/nar/article/46/6/e31/4763688",
+    "target": {
+        "id": "https://bellow2.ugent.be/test/scholix/biblio/academic.oup.com/about#us",
+        "inbox": "https://bellow2.ugent.be/test/scholix/biblio/academic.oup.com/inbox/",
+        "type": "Organization"
+    }
+}

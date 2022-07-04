@@ -1,0 +1,34 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://purl.org/coar/notify"
+  ],
+  "actor": {
+    "id": "https://generic-service.com",
+    "name": "Generic Service",
+    "type": "Service"
+  },
+  "context": {
+    "id": "https://some-organisation.org/resource/0021",
+    "ietf:cite-as": "https://doi.org/10.4598/12123487",
+    "type": "Document"
+  },
+  "id": "urn:uuid:94ecae35-dcfd-4182-8550-22c7164fe23f",
+  "inReplyTo": "urn:uuid:0370c0fb-bb78-4a9b-87f5-bed307a509dd",
+  "object": {
+    "id": "https://generic-service.com/resource/1234",
+    "ietf:cite-as": "https://doi.org/10.9357/123003",
+    "type": "Document"
+  },
+  "origin": {
+    "id": "https://generic-service.com/system",
+    "inbox": "https://generic-service.com/system/inbox/",
+    "type": "Service"
+  },
+  "target": {
+    "id": "https://some-organisation.org/system",
+    "inbox": "https://some-organisation.org/system/inbox/",
+    "type": "Service"
+  },
+  "type": "Announce"
+}

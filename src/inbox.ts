@@ -46,8 +46,6 @@ export function prettyUris(uris : string[], join?: string) : string[] | string {
     }
 }
 
-
-
 export type MessageInfo = {
     resource: ResourceInfo | undefined ,
     activity: ActivityType | undefined
