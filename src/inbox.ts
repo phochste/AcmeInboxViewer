@@ -14,6 +14,11 @@ import {
     deleteFile
 } from '@inrupt/solid-client';
 import { markdown } from 'markdown';
+import { v4 as uuidv4 } from 'uuid';
+
+export function as2(term:string) : string {
+    return 'https://www.w3.org/ns/activitystreams#' + term;
+}
 
 export function prettyThing(thing: Thing) : string {
     if (! thing) {
@@ -44,6 +49,30 @@ export function prettyUris(uris : string[], join?: string) : string[] | string {
     else {
         return pretty;
     }
+}
+
+export function generateIdentifier() : string {
+    return 'urn:uuid:' + uuidv4();
+}
+
+export async function sendNotification(inbox: string, notification: ActivityType) : Promise<boolean> {
+    let jsonld = notificationAsJsonld(notification);
+
+    console.log(`sending to ${inbox} : %s`, JSON.stringify(jsonld, undefined, 4));
+
+    let response = await fetch(inbox, {
+        method: 'POST',
+        headers: {
+            'Content-Type':'application/ld+json'
+        },
+        body: JSON.stringify(jsonld)
+    });
+
+    return isSuccessfulStatusCode(response.status);
+}
+
+function isSuccessfulStatusCode(statusCode: number) : boolean {
+    return Math.floor(statusCode / 100) === 2;
 }
 
 export type MessageInfo = {
@@ -321,4 +350,107 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
     else {
         return undefined;
     }
+}
+
+export function notificationAsJsonld(notification: ActivityType) : any {
+    let jsonld : any = {};
+   
+    jsonld['@context'] = 'https://www.w3.org/ns/activitystreams';
+    jsonld['id']      = notification.id;
+
+    if (notification.types.length) {
+        if (notification.types.length == 1) {
+            jsonld['type'] = notification.types[0];
+        }
+        else {
+            jsonld['type'] = notification.types;
+        }
+    }
+
+    if (notification.published) {
+        jsonld['published'] = notification.published.toISOString();
+    }
+    else {
+        jsonld['published'] = (new Date()).toISOString();
+    }
+
+    if (notification.inReplyTo) {
+        jsonld['inReplyTo'] = notification.inReplyTo;
+    }
+
+    let actor   = agentTypeToJson(notification.actor);
+    let target  = agentTypeToJson(notification.target);
+    let origin  = agentTypeToJson(notification.origin);
+    let object  = objectTypeToJson(notification.object);
+    let context = objectTypeToJson(notification.context);
+
+    if (actor) {
+        jsonld['actor'] = actor;
+    }
+
+    if (origin) {
+        jsonld['origin'] = origin;
+    }
+
+    if (target) {
+        jsonld['target'] = target;
+    }
+
+    if (object) {
+        jsonld['object'] = object;
+    }
+
+    if (context) {
+        jsonld['context'] = context;
+    }
+
+    return jsonld;
+}
+
+function agentTypeToJson(agent: AgentType) : any | undefined {
+    let json : any; 
+
+    if (agent) {
+        json = {};
+        if (agent.id) {
+            json['id'] = agent.id;
+        }
+        if (agent.name) {
+            json['name'] = agent.name;
+        }
+        if (agent.inbox) {
+            json['inbox'] = agent.inbox;
+        }
+        if (agent.types && agent.types.length) {
+            if (agent.types.length == 1) {
+                json['type'] = agent.types[0];
+            }
+            else {
+                json['type'] = agent.types;
+            }
+        }
+    }
+
+    return json;
+}
+
+function objectTypeToJson(object: ObjectType) : any | undefined {
+    let json : any; 
+
+    if (object) {
+        json = {};
+        if (object.id) {
+            json['id'] = object.id;
+        }
+        if (object.types && object.types.length) {
+            if (object.types.length == 1) {
+                json['type'] = object.types[0];
+            }
+            else {
+                json['type'] = object.types;
+            }
+        }
+    }
+
+    return json;
 }

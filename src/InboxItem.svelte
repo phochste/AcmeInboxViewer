@@ -13,15 +13,13 @@
     }
 </script>
 
-<div class="activebox" on:click={ () => selected = undefined }>&lt;&lt; {inbox}</div>
+<button class="btn btn-secondary" on:click={ () => selected = undefined}>&larr;</button>
 
 {#await item}
 <p>...loading...</p>
 {:then mail}
 
-{#if mail.activity?.types} 
-    <h3>{prettyUris(mail.activity.types,"; ")}</h3>
-{/if}
+<h4>Message detail: <a href="{mail.resource.url}">{mail.resource.url}</a></h4>
 
 <p>
     <b>Actor</b>:
@@ -110,11 +108,3 @@
 </table>
 {/if}
 {/await}
-
-<style>
-    .activebox {
-        background-color: #fefefe;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-</style>
