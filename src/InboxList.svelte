@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { loadInbox, watchInbox, prettyUris } from './inbox';
+    import { deleteInboxItem, loadInbox, prettyUris, type MessageInfo } from './inbox';
+    import { watchContainer } from './container';
 
     export let inbox : string;
     export let socket : WebSocket;
@@ -9,9 +10,13 @@
     let inboxResources = loadInbox(inbox);
     let current : string = "";
 
-    socket = watchInbox(inbox, () => {
+    socket = watchContainer(inbox, () => {
         inboxResources = loadInbox(inbox);
     });
+
+    async function deleteMail(mail : MessageInfo) {
+        await deleteInboxItem(mail);
+    }
 
 </script>
 
@@ -29,6 +34,7 @@
         <th>Type</th>
         <th>Object</th>
         <th>Date</th>
+        <th></th>
     </thead>
     <tbody>
   {#each things as mail}
@@ -42,11 +48,13 @@
             <td>{prettyUris(mail.activity.types,", ")}</td>
             <td>{prettyUris(mail.activity.object.types,", ")}</td>
             <td>{mail.resource.modified.toISOString()}</td>
+            <td><button on:click|stopPropagation={ () => deleteMail(mail)}>🗑</button></td>
         {:else}
             <td><b>Unknown</b></td>
             <td>--</td>
             <td>--</td>
             <td>{mail.resource.modified.toISOString()}</td>
+            <td><button on:click|stopPropagation={() => deleteMail(mail)}>🗑</button></td>
         {/if}
     </tr>
   {/each}

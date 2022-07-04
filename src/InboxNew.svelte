@@ -8,6 +8,7 @@
     const TYPE_ERROR   = 0x02;
     const OBJECT_ERROR = 0x04;
 
+    export let inbox : string;
     export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
@@ -25,7 +26,7 @@
         { id: 0 , text: '--Choose Subtype--' } ,
         { id: 1 , text: 'ArchivationAction' } ,
         { id: 2 , text: 'AwarenessAction' } ,   
-        { id: 3 , text: 'CertifiactionAction' } ,   
+        { id: 3 , text: 'CertificationAction' } ,   
         { id: 3 , text: 'EndorsementAction' } ,   
         { id: 3 , text: 'RegistrationAction' }    
     ];

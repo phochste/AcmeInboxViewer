@@ -30,7 +30,6 @@
 <Login bind:profile={profile}/>
 
 {#if profile}
-  <Hello {profile}/>
   {#if newMail}
 	 <InboxNew inbox={profile.inbox} bind:newMail={newMail} {profile}/>
   {:else if selected}

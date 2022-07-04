@@ -1,4 +1,4 @@
-import { fetch , getDefaultSession } from '@inrupt/solid-client-authn-browser';
+import { fetch } from '@inrupt/solid-client-authn-browser';
 import {
     getThing ,
     getDatetime ,
@@ -10,7 +10,8 @@ import {
     getContainedResourceUrlAll,
     type SolidDataset, 
     type Thing,
-    thingAsMarkdown
+    thingAsMarkdown,
+    deleteFile
 } from '@inrupt/solid-client';
 import { markdown } from 'markdown';
 
@@ -45,35 +46,7 @@ export function prettyUris(uris : string[], join?: string) : string[] | string {
     }
 }
 
-export function watchInbox(inbox: string, callback: (string) => void) : WebSocket {
-    let socket;
-    try {
-        const websocket = 'wss://' + inbox.split('/')[2];
-        socket = new WebSocket(websocket, ['solid-0.1']);
-        socket.onopen = function(e) {
-            console.log(`${websocket} open ${inbox}`);
-            console.log(`${websocket} sub ${inbox}`);
-            this.send(`sub ${inbox}`);
-        }
-        socket.onmessage = function(e) {
-            if (e.data && e.data.slice(0, 3) === 'pub') {
-                console.log(`ws> ${e.data}`);
-                callback(e.data);
-            }
-        }
-        socket.onerror = function(e) {
-            console.error(`${websocket} error ${inbox} %O`, e);
-        }
-        socket.onclose = function(e) {
-            console.log(`${websocket} closed ${inbox}`);
-        }
-    }
-    catch (e) {
-        console.error(`watchContainer(${inbox})`);
-        console.error(e);
-    }
-    return socket;   
-}
+
 
 export type MessageInfo = {
     resource: ResourceInfo | undefined ,
@@ -128,6 +101,12 @@ export async function loadInboxItem(dataset: SolidDataset, resource: string, bas
         resource: resourceInfo,
         activity: activityInfo
     };
+}
+
+export async function deleteInboxItem(item : MessageInfo) {
+    await deleteFile(item.resource.url, {
+        fetch:fetch
+    });
 }
 
 export function getRootUri(dataset: SolidDataset) : string | undefined {

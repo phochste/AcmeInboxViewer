@@ -46,7 +46,7 @@
 </script>
 
 {#await sessionInfo}
-
+<!-- waiting -->
 {:then info} 
   
 {#if ! (info && info.isLoggedIn) }

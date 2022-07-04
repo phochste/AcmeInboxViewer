@@ -8,7 +8,15 @@ export type FileInfo = {
 };
 
 export function watchContainer(url: string, callback: (string) => void) : WebSocket {
-    let socket;
+    let socket : WebSocket;
+    let keepAlive = (websocket,sock) => {
+        var timeout = 20000;
+        if (sock.readyState == sock.OPEN) {   
+            console.log(`${websocket} keep alive`);
+            socket.send('');
+            setTimeout(keepAlive, timeout, websocket, sock);  
+        }
+    };
     try {
         const websocket = 'wss://' + url.split('/')[2];
         socket = new WebSocket(websocket, ['solid-0.1']);
@@ -16,13 +24,16 @@ export function watchContainer(url: string, callback: (string) => void) : WebSoc
             console.log(`${websocket} open ${url}`);
             console.log(`${websocket} sub ${url}`);
             this.send(`sub ${url}`);
+            keepAlive(websocket,this);
         }
         socket.onmessage = function(msg) {
             if (msg.data && msg.data.slice(0,3) === 'pub') {
-                console.log(`ws> ${msg.data}`);
+                console.log(`${websocket} ${msg.data}`);
                 callback(msg.data);
             }
-            console.log(msg);
+            if (msg.data && msg.data.slice(0,3) === 'ack') {
+                console.log(`${websocket} ${msg.data}`);
+            }
         }
         socket.onerror = function(e) {
             console.error(`${websocket} error ${url} %O`, e);
