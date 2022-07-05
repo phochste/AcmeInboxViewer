@@ -23,6 +23,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Inbox ({inboxResources.length}) - {inbox}</title>
+</svelte:head>
+
 <button  class="btn btn-primary" on:click={ () => newMail = true }>New message</button>
 <hr/>
 <button class="btn btn-info" on:click={() => listAll(inbox) }>🔃 {inbox} ({inboxResources.length})</button>
