@@ -1,11 +1,14 @@
 <script lang="ts">
     import Container from './Container.svelte';
+    import Target from './Fields/Target.svelte';
+    import Subtypes from './Fields/Subtypes.svelte'; 
     import type { ProfileType } from "./util";
     import { 
         generateIdentifier, 
         sendNotification,
         objectBuilder,
-        type ActivityType , 
+        getAllKnownInboxes,
+        type ActivityType, 
         type AgentType,
         type ObjectType
     } from "./inbox";
@@ -21,24 +24,6 @@
     export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
-
-    let notificationTypes = [
-        { id: 0 , text: '--Choose Type--' } ,
-        { id: 1 , text: 'Offer'    , url: 'Offer' } ,
-        { id: 2 , text: 'Accept'   , url: 'Accept' } ,   
-        { id: 3 , text: 'Reject'   , url: 'Reject' } ,   
-        { id: 3 , text: 'Undo'     , url: 'Undo' } ,   
-        { id: 3 , text: 'Announce' , url: 'Announce' }    
-    ];
-
-    let notificationSubTypes = [
-        { id: 0 , text: '--Choose Subtype--' } ,
-        { id: 1 , text: 'ArchivationAction' ,   url: 'https://example.org/mellon#ArchivationAction'} ,
-        { id: 2 , text: 'AwarenessAction'  ,    url: 'https://example.org/mellon#AwarenessAction' },   
-        { id: 3 , text: 'CertificationAction' , url: 'https://example.org/mellon#CertificationAction' } ,   
-        { id: 3 , text: 'EndorsementAction' ,   url: 'https://example.org/mellon#EndorsementAction' } ,   
-        { id: 3 , text: 'RegistrationAction' ,  url: 'https://example.org/mellon#RegistrationAction' } 
-    ];
 
     let notificationType;
     let notificationSubType;
@@ -152,35 +137,22 @@
     <tr>
         <th>Target</th>
         <td>
-            <input type="text" size="80" on:change={ (e) => { target = e.target.value}}/>
+            <Target bind:target/>
         </td>
         <td>
             {#if error & TARGET_ERROR}
-            <span class="error">Invalid target</span>
+                <span class="error">Invalid target</span>
             {/if}
         </td>
     </tr>
     <tr>
         <th>Type</th>
         <td>
-        	<select bind:value={notificationType}>
-                {#each notificationTypes as mytype}
-                    <option value={mytype}>
-                        {mytype.text}
-                    </option>
-                {/each}
-            </select>
-            <select bind:value={notificationSubType}>
-                {#each notificationSubTypes as mytype}
-                    <option value={mytype}>
-                        {mytype.text}
-                    </option>
-                {/each}
-            </select>
+            <Subtypes bind:notificationType bind:notificationSubType/>
         </td>
         <td>
             {#if error & TYPE_ERROR}
-            <span class="error">Need a type</span>
+                <span class="error">Need a type</span>
             {/if}
         </td>
     </tr>
@@ -201,7 +173,7 @@
         </td>
         <td>
             {#if error & OBJECT_ERROR}
-            <span class="error">Need an object</span>
+                <span class="error">Need an object</span>
             {/if}
         </td>
     </tr>

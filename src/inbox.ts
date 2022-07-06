@@ -16,6 +16,8 @@ import {
     createThing
 } from '@inrupt/solid-client';
 import { v4 as uuidv4 } from 'uuid';
+import { fetchUserProfile, getString } from './util';
+import { FOAF , LDP , RDFS } from '@inrupt/vocab-common-rdf';
 
 export type IFetchFunction = {
     (input: RequestInfo | URL, init?: RequestInit) : Promise<Response>
@@ -141,9 +143,7 @@ export async function loadInboxItem(dataset: SolidDataset, resource: string, bas
     let activityInfo : ActivityType = undefined;
 
     try {
-        let messageDataset = await getSolidDataset(resource, {
-            fetch: fetch
-        });
+        let messageDataset = await inboxDataset(resource);
 
         let rootUri = getRootUri(messageDataset);
 
@@ -467,7 +467,7 @@ function agentTypeToJson(agent: AgentType) : any | undefined {
 }
 
 export function objectBuilder(id: string) {
-    return  buildThing(createThing({ url: id }));
+    return buildThing(createThing({ url: id }));
 }
 
 function objectTypeToJson(object: ObjectType) : any | undefined {
@@ -544,4 +544,79 @@ function thingToJson(thing: Thing) : any | undefined {
     }    
 
     return json;
+}
+
+export type InboxLookupType = {
+    inbox: string,
+    text: string[]
+};
+
+export async function getAllKnownInboxes(webId: string) : Promise<InboxLookupType[]> {
+    const result: InboxLookupType[] = [];
+
+    let profile = await fetchUserProfile(webId);
+
+    if (! profile.knows) {
+        return result;
+    }
+
+    profile.knows.forEach( async (id) => {
+        try {
+            let inboxType : InboxLookupType;
+            let localThing = getThing(profile.data, id);
+            
+            if (localThing) {
+                inboxType = thing2Inbox(localThing);
+            }
+
+            if (! inboxType) {
+                let candidate   = await fetchUserProfile(id);
+                let remoteThing = getThing(candidate.data, id);
+                inboxType = thing2Inbox(remoteThing);
+            }
+            
+            if (inboxType) {
+                result.push(inboxType);
+            }
+            else {
+                console.log(`${id} doesn't have an inbox`);
+            }
+        }
+        catch (e) {
+            console.error(`${id} doesn't have a profile`);
+        }
+    });
+
+    return result;
+}
+
+function thing2Inbox(thing: Thing) : InboxLookupType | null {
+    let inbox = getUrl(thing, LDP.inbox);
+
+    if (! inbox) {
+        return null;
+    } 
+
+    let result : InboxLookupType = {
+        inbox: inbox ,
+        text: []
+    };
+
+    let givenName = getString(thing, FOAF.givenName);
+    let familyName = getString(thing, FOAF.familyName);
+    let label = getString(thing, RDFS.label);
+
+    if (givenName) {
+        result.text.push(givenName);
+    }
+
+    if (familyName) {
+        result.text.push(familyName);
+    }
+
+    if (label) {
+        result.text.push(label);
+    }
+
+    return result;
 }
