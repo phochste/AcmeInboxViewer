@@ -7,14 +7,17 @@
     export let selected : string;
     export let newMail : boolean = false;
 
-    let inboxResources : Promise<MessageInfo>[] = listAll(inbox);
+    let inboxResources : Promise<MessageInfo>[] = [];
+        
+    listAll(inbox);
 
     socket = watchContainer(inbox, async () => {
         inboxResources = await loadInbox(inbox);
     });
 
-    async function listAll(inbox) : Promise<MessageInfo>[] {
+    async function listAll(inbox) : Promise<void> {
         inboxResources = await loadInbox(inbox);
+        return;
     }
 
     async function deleteMail(mail : MessageInfo) {
@@ -45,6 +48,7 @@
     <tbody>
   {#each inboxResources as promise}
     {#await promise}
+    <!-- deliberately empty -->
     {:then mail}
     <tr on:click={ () => { selected = mail.resource.url } } >
         {#if mail.activity}
