@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Container from './Container.svelte';
     import Target from './Fields/Target.svelte';
     import Subtypes from './Fields/Subtypes.svelte'; 
+    import Object from './Fields/Object.svelte';
     import type { ProfileType } from "./util";
     import { 
         generateIdentifier, 
@@ -29,8 +29,6 @@
     let notificationSubType;
 
     let target : string ;
-
-    let container : string = profile.storage;
     let object : string;
 
     function validateAndSend() : void {
@@ -137,7 +135,7 @@
     <tr>
         <th>Target</th>
         <td>
-            <Target bind:target/>
+            <Target bind:target {profile}/>
         </td>
         <td>
             {#if error & TARGET_ERROR}
@@ -148,7 +146,7 @@
     <tr>
         <th>Type</th>
         <td>
-            <Subtypes bind:notificationType bind:notificationSubType/>
+            <Subtypes bind:notificationType bind:notificationSubType {profile}/>
         </td>
         <td>
             {#if error & TYPE_ERROR}
@@ -168,8 +166,7 @@
     <tr>
         <th>Object</th>
         <td>
-            <input type="text" bind:value={object} size="80" readonly/>
-            <Container container={container} bind:selection={object}/>
+            <Object bind:object {profile}/>
         </td>
         <td>
             {#if error & OBJECT_ERROR}

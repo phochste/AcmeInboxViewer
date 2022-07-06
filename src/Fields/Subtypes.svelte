@@ -1,8 +1,11 @@
 <script lang="ts">
-     export let notificationType;
-     export let notificationSubType;
+    import type { ProfileType } from "../util";
 
-     let notificationTypes = [
+    export let notificationType;
+    export let notificationSubType;
+    export let profile : ProfileType;
+
+    let notificationTypes = [
         { id: 0 , text: '--Choose Type--' } ,
         { id: 1 , text: 'Offer'    , url: 'Offer' } ,
         { id: 2 , text: 'Accept'   , url: 'Accept' } ,   

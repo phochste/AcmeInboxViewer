@@ -1,16 +1,17 @@
 <script lang="ts">
     // https://github.com/pstanoev/simple-svelte-autocomplete
-    import { getDefaultSession } from '@inrupt/solid-client-authn-browser';
     import { getAllKnownInboxes, type InboxLookupType } from '../inbox';
     import AutoComplete from 'simple-svelte-autocomplete';
     import { onMount } from 'svelte';
+    import type { ProfileType } from '../util';
+
+    export let profile : ProfileType;
     export let target : string;
 
     let knownInboxes : InboxLookupType[]; 
 
     async function loadInboxes() {
-        let webId   = getDefaultSession().info.webId;
-        knownInboxes = await getAllKnownInboxes(webId);
+        knownInboxes = await getAllKnownInboxes(profile.webId);
     }
 
     async function searchInbox(keyword: string) {
