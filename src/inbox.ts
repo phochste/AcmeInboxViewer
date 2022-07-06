@@ -10,13 +10,23 @@ import {
     getContainedResourceUrlAll,
     type SolidDataset, 
     type Thing,
-    thingAsMarkdown,
+    type WithServerResourceInfo,
     deleteFile,
     buildThing,
-    createThing,
+    createThing
 } from '@inrupt/solid-client';
-import { markdown } from 'markdown';
 import { v4 as uuidv4 } from 'uuid';
+
+export type IFetchFunction = {
+    (input: RequestInfo | URL, init?: RequestInit) : Promise<Response>
+};
+
+export function fetchWithOptions(myInit: RequestInit) : IFetchFunction {
+    return (input: RequestInfo | URL, init?: RequestInit) => {
+        let mergedInit : RequestInit = {...init,...myInit};
+        return fetch(input,mergedInit);
+    };
+}
 
 export function as2(term:string) : string {
     return 'https://www.w3.org/ns/activitystreams#' + term;
@@ -103,16 +113,15 @@ export type MessageInfo = {
     activity: ActivityType | undefined
 };
 
-export async function inboxDataset(inbox: string) : Promise<SolidDataset> {
-    const dataset = await getSolidDataset(inbox, {
-        fetch: fetch
+export function inboxDataset(inbox: string, init?: RequestInit) : Promise<SolidDataset & WithServerResourceInfo> {
+    return getSolidDataset(inbox, {
+        fetch: fetchWithOptions(init ? init : {})
     });
-    return dataset;
 }
 
 export async function loadInbox(inbox: string) : Promise<Promise<MessageInfo>[]> {
-    const dataset = await getSolidDataset(inbox, {
-        fetch: fetch
+    const dataset = await inboxDataset(inbox, {
+        cache: 'no-store'
     });
 
     let resources : Promise<MessageInfo>[] = [];

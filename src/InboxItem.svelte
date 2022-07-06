@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { MessageInfo } from './inbox';
     import { prettyThing, prettyUris, prettyName, inboxDataset, loadInboxItem, getActivityFromDataset } from './inbox';
-import main from './main';
 
     export let inbox : string;
     export let selected : string;
