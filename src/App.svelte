@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Login from './Login.svelte';
 	import Logout from './Logout.svelte';
-	import Hello from './Hello.svelte';
 	import InboxList from './InboxList.svelte';
 	import InboxItem from './InboxItem.svelte';
 	import InboxNew from './InboxNew.svelte';

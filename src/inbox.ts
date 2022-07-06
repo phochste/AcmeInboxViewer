@@ -17,7 +17,7 @@ import {
 } from '@inrupt/solid-client';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchUserProfile, getString } from './util';
-import { FOAF , LDP , RDFS } from '@inrupt/vocab-common-rdf';
+import { FOAF , LDP , RDFS , RDF , AS } from '@inrupt/vocab-common-rdf';
 
 export type IFetchFunction = {
     (input: RequestInfo | URL, init?: RequestInit) : Promise<Response>
@@ -264,14 +264,14 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
     let contextT : ObjectType | undefined;
 
     if (thing) {
-        const types     = getUrlAll(thing, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
-        const published = getDatetime(thing, 'https://www.w3.org/ns/activitystreams#published');
-        const actor     = getUrl(thing, 'https://www.w3.org/ns/activitystreams#actor');
-        const target    = getUrl(thing, 'https://www.w3.org/ns/activitystreams#target');
-        const origin    = getUrl(thing, 'https://www.w3.org/ns/activitystreams#origin');
-        const context   = getUrl(thing, 'https://www.w3.org/ns/activitystreams#context');
-        const inReplyTo = getUrl(thing, 'https://www.w3.org/ns/activitystreams#inReplyTo');
-        const object    = getUrl(thing, 'https://www.w3.org/ns/activitystreams#object');
+        const types     = getUrlAll(thing, RDF.type);
+        const published = getDatetime(thing, AS.published);
+        const actor     = getUrl(thing, AS.actor);
+        const target    = getUrl(thing, AS.target);
+        const origin    = getUrl(thing, AS.origin);
+        const context   = getUrl(thing, AS.context);
+        const inReplyTo = getUrl(thing, AS.inReplyTo);
+        const object    = getUrl(thing, AS.object);
 
         if (actor) {
             const thing = getThing(dataset, actor);
@@ -280,8 +280,8 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
             let inbox: string;
 
             if (thing) {
-                types = getUrlAll(thing,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
-                name  = getStringNoLocale(thing, 'https://www.w3.org/ns/activitystreams#name');
+                types = getUrlAll(thing, RDF.type);
+                name  = getStringNoLocale(thing, AS.name);
                 inbox = getUrl(thing, 'https://www.w3.org/ns/activitystreams#inbox');
             }
 
@@ -301,8 +301,8 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
             let inbox: string;
 
             if (thing) {
-                types = getUrlAll(thing,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
-                name  = getStringNoLocale(thing, 'https://www.w3.org/ns/activitystreams#name');
+                types = getUrlAll(thing, RDF.type);
+                name  = getStringNoLocale(thing, AS.name);
                 inbox = getUrl(thing, 'https://www.w3.org/ns/activitystreams#inbox');
             }
 
@@ -322,8 +322,8 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
             let inbox: string;
 
             if (thing) {
-                types = getUrlAll(thing,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
-                name  = getStringNoLocale(thing, 'https://www.w3.org/ns/activitystreams#name');
+                types = getUrlAll(thing, RDF.type);
+                name  = getStringNoLocale(thing, AS.name);
                 inbox = getUrl(thing, 'https://www.w3.org/ns/activitystreams#inbox');
             }
 
@@ -341,7 +341,7 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
             let types : string[];
             
             if (thing) {
-                types = getUrlAll(thing,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+                types = getUrlAll(thing, RDF.type);
             }
 
             contextT = {
@@ -355,7 +355,7 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
             let types : string[];
 
             if (thing) {
-                types = getUrlAll(thing,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+                types = getUrlAll(thing, RDF.type);
             }   
 
             objectT = {
@@ -547,6 +547,8 @@ function thingToJson(thing: Thing) : any | undefined {
 }
 
 export type InboxLookupType = {
+    webid: string,
+    type: string,
     inbox: string,
     text: string[]
 };
@@ -555,6 +557,13 @@ export async function getAllKnownInboxes(webId: string) : Promise<InboxLookupTyp
     const result: InboxLookupType[] = [];
 
     let profile = await fetchUserProfile(webId);
+
+    let localThing = getThing(profile.data, webId);
+    let inboxType = thing2Inbox(localThing, webId);
+
+    if (inboxType) {
+        result.push(inboxType);
+    }
 
     if (! profile.knows) {
         return result;
@@ -566,14 +575,14 @@ export async function getAllKnownInboxes(webId: string) : Promise<InboxLookupTyp
             let localThing = getThing(profile.data, id);
             
             if (localThing) {
-                inboxType = thing2Inbox(localThing);
+                inboxType = thing2Inbox(localThing,id);
             }
 
-            if (! inboxType) {
-                let candidate   = await fetchUserProfile(id);
-                let remoteThing = getThing(candidate.data, id);
-                inboxType = thing2Inbox(remoteThing);
-            }
+            // if (! inboxType) {
+            //     let candidate   = await fetchUserProfile(id);
+            //     let remoteThing = getThing(candidate.data, id);
+            //     inboxType = thing2Inbox(remoteThing,id);
+            // }
             
             if (inboxType) {
                 result.push(inboxType);
@@ -590,7 +599,7 @@ export async function getAllKnownInboxes(webId: string) : Promise<InboxLookupTyp
     return result;
 }
 
-function thing2Inbox(thing: Thing) : InboxLookupType | null {
+function thing2Inbox(thing: Thing, webid: string) : InboxLookupType | null {
     let inbox = getUrl(thing, LDP.inbox);
 
     if (! inbox) {
@@ -598,6 +607,8 @@ function thing2Inbox(thing: Thing) : InboxLookupType | null {
     } 
 
     let result : InboxLookupType = {
+        type: undefined,
+        webid: webid ,
         inbox: inbox ,
         text: []
     };
@@ -605,6 +616,7 @@ function thing2Inbox(thing: Thing) : InboxLookupType | null {
     let givenName = getString(thing, FOAF.givenName);
     let familyName = getString(thing, FOAF.familyName);
     let label = getString(thing, RDFS.label);
+    let type = getUrl(thing, RDF.type);
 
     if (givenName) {
         result.text.push(givenName);
@@ -616,6 +628,10 @@ function thing2Inbox(thing: Thing) : InboxLookupType | null {
 
     if (label) {
         result.text.push(label);
+    }
+
+    if (type) {
+        result.type = type;
     }
 
     return result;
