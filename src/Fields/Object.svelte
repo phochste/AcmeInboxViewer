@@ -1,11 +1,13 @@
 <script lang="ts">
+    import NoteType from "./NoteType.svelte";
     import DocumentType from "./DocumentType.svelte";
     import RelationshipType from "./RelationshipType.svelte";
     import type { ProfileType } from "../util";
 
     const objectTypes = [
-        { id: 1 , text: 'Document' } ,
-        { id: 2 , text: 'Relationship'}
+        { id: 1 , text: 'Note' } ,
+        { id: 2 , text: 'Document' } ,
+        { id: 3 , text: 'Relationship'}
     ]
 
     export let profile : ProfileType;
@@ -27,7 +29,9 @@
 </select>
 </p>
 
-{#if selected.text == 'Document'}
+{#if selected.text == 'Note'}
+    <NoteType bind:object={object}/>
+{:else if selected.text == 'Document'}
     <DocumentType resource={profile.storage} bind:object={object}/>
 {:else if selected.text == 'Relationship'}
     <RelationshipType resource={profile.storage} bind:object={object}/>

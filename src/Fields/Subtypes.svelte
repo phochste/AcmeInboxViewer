@@ -7,11 +7,14 @@
 
     let notificationTypes = [
         { id: 0 , text: '--Choose Type--' } ,
-        { id: 1 , text: 'Offer'    , url: 'Offer' } ,
-        { id: 2 , text: 'Accept'   , url: 'Accept' } ,   
-        { id: 3 , text: 'Reject'   , url: 'Reject' } ,   
-        { id: 3 , text: 'Undo'     , url: 'Undo' } ,   
-        { id: 3 , text: 'Announce' , url: 'Announce' }    
+        { id: 1 , text: 'Create'   , url: 'Create' } ,
+        { id: 2 , text: 'Update'   , url: 'Update' } ,
+        { id: 3 , text: 'Remove'   , url: 'Remove' } ,
+        { id: 4 , text: 'Offer'    , url: 'Offer' } ,
+        { id: 5 , text: 'Accept'   , url: 'Accept' } ,   
+        { id: 6 , text: 'Reject'   , url: 'Reject' } ,   
+        { id: 7 , text: 'Undo'     , url: 'Undo' } ,   
+        { id: 8 , text: 'Announce' , url: 'Announce' }    
     ];
 
     let notificationSubTypes = [

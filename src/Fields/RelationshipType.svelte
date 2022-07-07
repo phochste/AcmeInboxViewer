@@ -1,7 +1,7 @@
 <script lang="ts">
     import ContainerSelect from "../ContainerSelect.svelte";
     import { v4 as uuidv4 } from 'uuid';
-    import { objectBuilder, type ObjectType } from "../inbox";
+    import { generateIdentifier, objectBuilder, type ObjectType } from "../inbox";
     import { AS, RDF } from '@inrupt/vocab-common-rdf';
 
     export let resource : string;
@@ -29,7 +29,7 @@
     let mainObject;
 
     $: if (mainSubject && mainRelationship && mainObject) {
-        let id = 'urn:uuid:' + uuidv4();
+        let id = generateIdentifier();
         let objectThing = objectBuilder(id)
                             .addUrl(RDF.type,AS.Relationship)
                             .addUrl(AS.subject,mainSubject.url)
