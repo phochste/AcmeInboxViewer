@@ -10,8 +10,9 @@
     export let socket : WebSocket;
     export let selected : string;
     export let profile : ProfileType;
+    export let maxItems : number = 50;
 
-    let inboxResources : Promise<MessageInfo>[] = [];
+    let inboxResources : MessageInfo[] = [];
         
     listAll(inbox);
 
@@ -53,29 +54,36 @@
         <th></th>
     </thead>
     <tbody>
-  {#each inboxResources as promise}
-    {#await promise}
-    <!-- deliberately empty -->
-    {:then mail}
-    <tr on:click={ () => { selected = mail.resource.url } } >
-        {#if mail.activity}
-            <td><b>{mail.activity.actor.name ? mail.activity.actor.name : 'Unknown' }</b></td>
-            <td>{prettyUris(mail.activity.types,", ")}</td>
-            <td>{prettyUris(mail.activity.object.types,", ")}</td>
-            <td>{mail.resource.modified.toISOString()}</td>
-            <td><button on:click|stopPropagation={ () => deleteMail(mail)}>🗑</button></td>
-        {:else}
-            <td><b>Unknown</b></td>
-            <td>--</td>
-            <td>--</td>
-            <td>{mail.resource.modified.toISOString()}</td>
-            <td><button on:click|stopPropagation={() => deleteMail(mail)}>🗑</button></td>
-        {/if}
-    </tr>
+  {#each inboxResources.slice(0,maxItems) as mail}
+    {#await mail.activity}
+       <!-- deliberately left empty--> 
+    {:then activity} 
+        <tr on:click={ () => { selected = mail.resource.url } } >
+            {#if activity}
+                <td><b>{activity.actor.name ? activity.actor.name : 'Unknown' }</b></td>
+                <td>{prettyUris(activity.types,", ")}</td>
+                <td>{prettyUris(activity.object.types,", ")}</td>
+                <td>{mail.resource.modified.toISOString()}</td>
+                <td><button on:click|stopPropagation={ () => deleteMail(mail)}>🗑</button></td>
+            {:else}
+                <td><b>Unknown</b></td>
+                <td>--</td>
+                <td>--</td>
+                <td>{mail.resource.modified.toISOString()}</td>
+                <td><button on:click|stopPropagation={() => deleteMail(mail)}>🗑</button></td>
+            {/if}
+        </tr>
     {/await}
   {/each}
+  {#if inboxResources.length > maxItems}
+        <tr on:click={ () => { maxItems += maxItems }}>
+            <td colspan="5">
+                ...older messages...
+            </td>
+        </tr>
+  {/if}
   </tbody>
   </table>
   {:else}
-  (no messages available)
+    (no messages available)
   {/if}

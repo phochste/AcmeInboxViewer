@@ -18,13 +18,14 @@
 	let context : ObjectType;
 	let object : ObjectType;
 
-	function handleReply(e) {
-		let item = e.detail as MessageInfo;
-		selected = undefined;
-		newMail = true;
-		inReplyTo = item.activity.id;
-		target = item.activity.actor.id;
-		context = item.activity.object;
+	async function handleReply(e) {
+		let item  = e.detail as MessageInfo;
+		let activity = await item.activity;
+		selected  = undefined;
+		newMail   = true;
+		inReplyTo = activity.id;
+		target    = activity.actor.id;
+		context   = activity.object;
 	}
 
 	function handleNew(e) {

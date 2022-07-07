@@ -112,7 +112,7 @@ function isSuccessfulStatusCode(statusCode: number) : boolean {
 
 export type MessageInfo = {
     resource: ResourceInfo | undefined ,
-    activity: ActivityType | undefined
+    activity: Promise<ActivityType | undefined>
 };
 
 export function inboxDataset(inbox: string, init?: RequestInit) : Promise<SolidDataset & WithServerResourceInfo> {
@@ -121,12 +121,12 @@ export function inboxDataset(inbox: string, init?: RequestInit) : Promise<SolidD
     });
 }
 
-export async function loadInbox(inbox: string) : Promise<Promise<MessageInfo>[]> {
+export async function loadInbox(inbox: string) : Promise<MessageInfo[]> {
     const dataset = await inboxDataset(inbox, {
         cache: 'no-store'
     });
 
-    let resources : Promise<MessageInfo>[] = [];
+    let resources : MessageInfo[] = [];
     
     let containedResources = getContainedResourceUrlAll(dataset);
 
@@ -135,31 +135,47 @@ export async function loadInbox(inbox: string) : Promise<Promise<MessageInfo>[]>
         resources.push(inboxItem);
     }
 
-    return resources;
+    return resources.sort( (a,b) => {
+        if (a.resource.modified && b.resource.modified) {
+            return b.resource.modified.getTime() - a.resource.modified.getTime();
+        }
+        else if (a.resource.mtime && b.resource.mtime) {
+            return b.resource.mtime - a.resource.mtime;
+        }
+        else {
+            return 0;
+        }
+    });
 }
 
-export async function loadInboxItem(dataset: SolidDataset, resource: string, base?: string) : Promise<MessageInfo> {
+export function loadInboxItem(dataset: SolidDataset, resource: string, base?: string) : MessageInfo {
     let resourceInfo = getResourceInfoFromDataset(dataset, resource, base);
-    let activityInfo : ActivityType = undefined;
+    let activityInfo = loadInboxItemActivity(resource);
 
+    return {
+        resource: resourceInfo,
+        activity: activityInfo
+    };
+}
+
+async function loadInboxItemActivity(resource: string) : Promise<ActivityType | undefined> {
     try {
         let messageDataset = await inboxDataset(resource);
 
         let rootUri = getRootUri(messageDataset);
 
         if (rootUri) {
-            activityInfo = getActivityFromDataset(messageDataset,rootUri,resource);
+            return getActivityFromDataset(messageDataset,rootUri,resource);
+        }
+        else {
+            return undefined;
         }
     }
     catch (e) {
         console.error(`${resource} is probably not RDF`);
         console.error(e);
+        return undefined;
     }
-
-    return {
-        resource: resourceInfo,
-        activity: activityInfo
-    };
 }
 
 export async function deleteInboxItem(item : MessageInfo) {
