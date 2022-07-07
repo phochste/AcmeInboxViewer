@@ -20,11 +20,11 @@ import { fetchUserProfile, getString } from './util';
 import { FOAF , LDP , RDFS , RDF , AS } from '@inrupt/vocab-common-rdf';
 
 export type IFetchFunction = {
-    (input: RequestInfo | URL, init?: RequestInit) : Promise<Response>
+    (input: RequestInfo, init?: RequestInit) : Promise<Response>
 };
 
 export function fetchWithOptions(myInit: RequestInit) : IFetchFunction {
-    return (input: RequestInfo | URL, init?: RequestInit) => {
+    return (input: RequestInfo, init?: RequestInit) => {
         let mergedInit : RequestInit = {...init,...myInit};
         return fetch(input,mergedInit);
     };

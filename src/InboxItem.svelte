@@ -1,9 +1,11 @@
 <script lang="ts">
     import type { MessageInfo } from './inbox';
     import { prettyThing, prettyUris, prettyName, inboxDataset, loadInboxItem, getActivityFromDataset } from './inbox';
+    import type { ProfileType } from './util';
 
     export let inbox : string;
     export let selected : string;
+    export let profile : ProfileType;
 
     let item : Promise<MessageInfo> = loadSelected();
 

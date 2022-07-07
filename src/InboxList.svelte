@@ -1,11 +1,13 @@
 <script lang="ts">
     import { deleteInboxItem, loadInbox, prettyUris, type MessageInfo } from './inbox';
     import { watchContainer } from './container';
+    import type { ProfileType } from './util';
 
     export let inbox : string;
     export let socket : WebSocket;
     export let selected : string;
     export let newMail : boolean = false;
+    export let profile : ProfileType;
 
     let inboxResources : Promise<MessageInfo>[] = [];
         

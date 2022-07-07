@@ -10,8 +10,8 @@
 </script>
 
 {#if typeof(profile) != "undefined" }
-    {#if profile.image}
-        <img src="{profile.image}" 
+    {#if profile.img}
+        <img src="{profile.img}" 
             class="img-circle" 
             width="50" 
             height="50" 

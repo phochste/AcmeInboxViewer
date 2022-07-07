@@ -32,8 +32,8 @@
   {#if newMail}
 	 <InboxNew inbox={profile.inbox} bind:newMail={newMail} {profile}/>
   {:else if selected}
-     <InboxItem inbox={profile.inbox} bind:selected={selected}/>
+     <InboxItem inbox={profile.inbox} bind:selected={selected} {profile}/>
   {:else}
-  	 <InboxList inbox={profile.inbox} bind:selected={selected} bind:newMail={newMail}/>
+  	 <InboxList inbox={profile.inbox} bind:selected={selected} bind:newMail={newMail} {profile}/>
   {/if}
 {/if}
