@@ -24,7 +24,7 @@
 		newMail = true;
 		inReplyTo = item.activity.id;
 		target = item.activity.actor.id;
-		context = item.activity.context;
+		context = item.activity.object;
 	}
 
 	function handleNew(e) {
