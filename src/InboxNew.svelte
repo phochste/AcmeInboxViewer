@@ -112,7 +112,7 @@
     
 </script>
 
-<button class="btn btn-primary" on:click={validateAndSend}>Send</button>
+<button class="btn btn-success" on:click={validateAndSend}>Send</button>
 <button class="btn btn-secondary" on:click={ () => newMail = false}>Cancel</button>
 
 <h4>New notification</h4>
