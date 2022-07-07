@@ -1,6 +1,24 @@
 import { getSolidDataset , getContainedResourceUrlAll } from '@inrupt/solid-client';
 import { fetch } from '@inrupt/solid-client-authn-browser';
 
+export const FILE_TYPE = 0x01;
+export const DIR_TYPE  = 0x02;
+export const ANY_TYPE  = 0x04;
+
+export function hasType(type: number) : boolean {
+    return type && type > 0 ? true : false;
+}
+
+export function isFileType(type: number) : boolean {
+    if (! type) return false;
+    return (type & FILE_TYPE) > 0;
+}
+
+export function isDirType(type: number) : boolean {
+    if (! type) return false;
+    return (type & DIR_TYPE) > 0;
+}
+
 export type FileInfo = {
     url: string ,
     name?: string ,
@@ -49,6 +67,30 @@ export function watchContainer(url: string, callback: (string) => void) : WebSoc
     return socket;   
 }
 
+export function getContainerItem(url: string) : FileInfo | undefined {
+    let file : FileInfo;
+
+    if (! url) return undefined;
+    
+    if (url.endsWith('/')) {
+        let name = url.replace(/\/$/g,'').replace(/.*\//g,'');
+        file = {
+            url: url,
+            name: name,
+            isDir: true
+        };
+    }
+    else {
+        let name = url.replace(/.*\//g,'');
+        file = {
+            url: url,
+            name: name,
+            isDir: false
+        };
+    } 
+
+    return file;
+}
 export async function getContainerList(url: string) : Promise<FileInfo[] | undefined> {
     let containerDataset = null;
 
@@ -63,22 +105,8 @@ export async function getContainerList(url: string) : Promise<FileInfo[] | undef
         let containedURIs = getContainedResourceUrlAll(containerDataset);
 
         for (let uri of containedURIs) {
-            if (uri.endsWith('/')) {
-                let name = uri.replace(/\/$/g,'').replace(/.*\//g,'');
-                files.push({
-                    url: uri,
-                    name: name,
-                    isDir: true
-                });
-            }
-            else {
-                let name = uri.replace(/.*\//g,'');
-                files.push({
-                    url: uri,
-                    name: name,
-                    isDir: false
-                });
-            }
+            let file = getContainerItem(uri);
+            files.push(file);
         }
 
         return files.sort( (a,b) => {

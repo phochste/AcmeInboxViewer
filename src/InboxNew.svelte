@@ -6,8 +6,6 @@
     import { 
         generateIdentifier, 
         sendNotification,
-        objectBuilder,
-        getAllKnownInboxes,
         type ActivityType, 
         type AgentType,
         type ObjectType
@@ -29,7 +27,7 @@
     let notificationSubType;
 
     let target : string ;
-    let object : string;
+    let object : ObjectType;
 
     function validateAndSend() : void {
         error = validateFields();
@@ -61,24 +59,12 @@
             types: [ 'Person' ]
         };
 
-        let objectThing = objectBuilder(object)
-                            .addUrl('https://example.org/cite-as','http://brol.com')
-                            .addStringNoLocale('https://example.org/brol','ok')
-                            .addDecimal('https://example.org/brol',4)
-                            .build();
-
-        let objectT : ObjectType = {
-            id: object,
-            types: [ 'Document'] ,
-            thing: objectThing
-        };
-
         let notification : ActivityType = {
             id: generateIdentifier() ,
             types: type ,
             actor: actorT ,
             target: targetT ,
-            object: objectT
+            object: object
         };
 
         let result = sendNotification(inbox, notification);
@@ -99,6 +85,7 @@
             error &= ~TARGET_ERROR;
         }
         else {
+            console.error('target error');
             error |= TARGET_ERROR;
         }
 
@@ -106,6 +93,7 @@
             error &= ~TYPE_ERROR;
         }
         else {
+            console.error('type error');
             error |= TYPE_ERROR;
         }
 
@@ -113,12 +101,13 @@
             error &= ~OBJECT_ERROR;
         }
         else {
+            console.error('object error');
             error |= OBJECT_ERROR;
         }
 
         return error;
     }
-
+    
 </script>
 
 <button class="btn btn-primary" on:click={validateAndSend}>Send</button>
