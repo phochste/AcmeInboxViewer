@@ -21,4 +21,5 @@
     }
 </script>
 
+<small><i>Select a local resource.</i></small><br>
 <ContainerSelect {resource} bind:selectedResource={mainDocument}/>

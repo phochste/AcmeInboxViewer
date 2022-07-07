@@ -2,6 +2,7 @@
     import Target from './Fields/Target.svelte';
     import Subtypes from './Fields/Subtypes.svelte'; 
     import Object from './Fields/Object.svelte';
+    import Context from './Fields/Context.svelte';
     import type { ProfileType } from "./util";
     import { 
         generateIdentifier, 
@@ -22,12 +23,12 @@
     export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
+    export let target : string ;
+    export let context : ObjectType;
+    export let object : ObjectType;
 
     let notificationType;
     let notificationSubType;
-
-    let target : string ;
-    let object : ObjectType;
 
     function validateAndSend() : void {
         error = validateFields();
@@ -64,6 +65,7 @@
             types: type ,
             actor: actorT ,
             target: targetT ,
+            context: context ,
             object: object
         };
 
@@ -124,7 +126,7 @@
     <tr>
         <th>Target</th>
         <td>
-            <Target bind:target {profile}/>
+            <Target bind:target={target} {profile}/>
         </td>
         <td>
             {#if error & TARGET_ERROR}
@@ -152,6 +154,12 @@
         <td></td>
     </tr>
     {/if}
+    <tr>
+        <th>Context</th>
+        <td>
+            <Context bind:context={context}/>
+        </td>
+    </tr>
     <tr>
         <th>Object</th>
         <td>

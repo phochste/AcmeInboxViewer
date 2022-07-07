@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { MessageInfo } from './inbox';
+    import { createEventDispatcher } from 'svelte';
     import { prettyThing, prettyUris, prettyName, inboxDataset, loadInboxItem, getActivityFromDataset } from './inbox';
     import type { ProfileType } from './util';
 
@@ -9,10 +10,17 @@
 
     let item : Promise<MessageInfo> = loadSelected();
 
+    const dispatch = createEventDispatcher();
+
     async function loadSelected() : Promise<MessageInfo> {
         let dataset = await inboxDataset(inbox);
         return  await loadInboxItem(dataset, selected);
     }
+
+    async function handleReply() {
+        dispatch('reply', await item);
+    }
+
 </script>
 
 <button class="btn btn-secondary" on:click={ () => selected = undefined}>&larr;</button>
@@ -22,6 +30,9 @@
 {:then mail}
 
 <h4>Message detail: <a href="{mail.resource.url}">{mail.resource.url}</a></h4>
+
+<button class="btn btn-primary" on:click={handleReply}>Reply</button>
+
 {#if mail.activity && mail.activity.types}
 <h2>{prettyUris(mail.activity.types)}</h2>
 {/if}

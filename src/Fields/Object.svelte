@@ -11,9 +11,9 @@
     ]
 
     export let profile : ProfileType;
-    export let objectType : string;
     export let object : any;
 
+    let objectType : string;
     let selected = objectTypes[0];
 
     function handleObjectType() {

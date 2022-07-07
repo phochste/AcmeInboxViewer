@@ -22,6 +22,7 @@
     }
 </script>
 
+<small><i>Type a textual message.</i></small><br>
 <textarea bind:value={mainContent}></textarea>
 
 <style>

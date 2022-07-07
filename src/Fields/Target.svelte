@@ -9,6 +9,7 @@
     export let target : string;
 
     let knownInboxes : InboxLookupType[]; 
+    let text;
 
     async function loadInboxes() {
         knownInboxes = await getAllKnownInboxes(profile.webId);
@@ -23,18 +24,35 @@
         }
     }
 
+    function handleChange(inbox: InboxLookupType) {
+        if (! inbox) {
+            text = target;
+        }
+        else {
+            target = text;
+        }
+    }
+
     onMount( () => {
        loadInboxes();
     });
 </script>
 
+<small><i>The intended receiver of messages.</i></small><br>
 <AutoComplete 
     searchFunction={searchInbox} 
     labelFieldName="webid" 
     valueFieldName="webid" 
-    bind:text={target}
+    bind:text={text}
+    create={true}
     delay=200
     required={true}
+    onChange={handleChange}
     />
 
+<style>
+    :global(.autocomplete) {
+        width: 450px;
+    }
+</style>
 

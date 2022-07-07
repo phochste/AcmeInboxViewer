@@ -27,6 +27,7 @@
     ];
 </script>
 
+<small><i>Select an activity type.</i></small><br>
 <select bind:value={notificationType}>
     {#each notificationTypes as mytype}
         <option value={mytype}>

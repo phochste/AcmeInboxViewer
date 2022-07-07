@@ -48,6 +48,8 @@
 
 </script>
 
+<small><i>Explain the relation between two resources.</i></small><br>
+
 <table class="table">
     <tbody>
         <tr>
