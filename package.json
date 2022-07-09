@@ -39,7 +39,9 @@
     "monaco-editor": "^0.33.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "n3": "^1.16.1",
+    "pretty-print-json": "^1.2.5",
     "simple-svelte-autocomplete": "^2.4.0",
+    "svelte-modals": "^1.1.0",
     "util": "^0.12.4",
     "uuid": "^8.3.2"
   }

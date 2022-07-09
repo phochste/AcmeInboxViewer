@@ -1,9 +1,47 @@
 <script lang="ts">
-    import type { ActivityType, ResourceInfo } from "../inbox";
+    import { prettyPrintJson } from 'pretty-print-json';
+    import { getSource, type ActivityType, type ResourceInfo, type SourceType } from "../inbox";
+    import { Modals, openModal, closeModal, modals } from 'svelte-modals'
+    import Modal from "./Modal.svelte";
     import { prettyUris , prettyName } from "../inbox";
 
     export let resource : ResourceInfo;
     export let activity : ActivityType;
+
+    function escapeHTML(str){
+        return new Option(str).innerHTML;
+    }
+
+	async function handleOpen() {
+        let content : SourceType = await getSource(resource.url);
+        let message;
+
+        console.log(content)
+        
+        try {
+            if (content.isJson) {
+                message = '<pre>' + JSON.stringify(
+                    JSON.parse(content.text),
+                    undefined,4
+                ) + '</pre>';
+            }
+            else {
+                message = '<pre>' + escapeHTML(content.text) + '</pre>';
+            }
+        }
+        catch (e) {
+            console.error(`failed to parse source %O`, e);
+            message = '<pre>' + escapeHTML(content.text) + '</pre>';
+        }
+
+        if (message) {
+            openModal(Modal, { 
+                title: `Source`, 
+                message: message
+            });
+        }
+	}
+
 </script>
 
 {#if activity && activity.types}
@@ -49,4 +87,26 @@
     {:else}
         Unkown
     {/if}
+
+    <br/>
+    <a href="/" on:click|preventDefault={handleOpen}>View Source</a>
 </p>
+
+<Modals>
+    <div
+      slot="backdrop"
+      class="backdrop"
+      on:click={closeModal}
+    />
+</Modals>
+
+<style>
+    .backdrop {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      background: rgba(0,0,0,0.50)
+    }
+  </style>

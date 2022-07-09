@@ -3,6 +3,7 @@
     import Subtypes from './Fields/Subtypes.svelte'; 
     import Object from './Fields/Object.svelte';
     import Context from './Fields/Context.svelte';
+    import Origin from './Fields/Origin.svelte';
     import type { ProfileType } from "./util";
     import { 
         generateIdentifier, 
@@ -23,6 +24,7 @@
     export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
+    export let originT : AgentType;
     export let target : string ;
     export let targetT : AgentType;
     export let context : ObjectType;
@@ -31,7 +33,7 @@
     let notificationType;
     let notificationSubType;
 
-    function validateAndSend() : void {
+    async function validateAndSend() : Promise<void> {
         error = validateFields();
 
         if (error) {
@@ -61,13 +63,14 @@
             id: generateIdentifier() ,
             types: type ,
             actor: actorT ,
+            origin: originT ,
             target: targetT ,
             context: context ,
             inReplyTo: inReplyTo ,
             object: object
         };
 
-        let result = sendNotification(targetT.inbox, notification);
+        let result = await sendNotification(targetT.inbox, notification);
 
         if (! result) {
             error |= SEND_ERROR;
@@ -118,6 +121,8 @@
 {#if error & SEND_ERROR} 
 <span class="error">Failed to send notification</span>
 {/if}
+
+<Origin bind:originObject={originT}/>
 
 <table class="table">
     <tbody>

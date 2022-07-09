@@ -44,7 +44,7 @@
 
     <button class="btn btn-success" on:click={handleReply}>Reply</button>
     <button class="btn btn-danger" on:click={() => handleDelete(mail)}>Delete</button>
-
+    
     {#await mail.activity}
         <p>...loading...</p>
     {:then activity}

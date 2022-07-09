@@ -99,6 +99,8 @@ export async function sendNotification(inbox: string, notification: ActivityType
         body: JSON.stringify(jsonld)
     });
 
+    console.log(`sending status: ${response.status}`);
+
     return isSuccessfulStatusCode(response.status);
 }
 
@@ -436,16 +438,16 @@ export function notificationAsJsonld(notification: ActivityType) : any {
         jsonld['origin'] = origin;
     }
 
-    if (target) {
-        jsonld['target'] = target;
+    if (context) {
+        jsonld['context'] = context;
     }
 
     if (object) {
         jsonld['object'] = object;
     }
 
-    if (context) {
-        jsonld['context'] = context;
+    if (target) {
+        jsonld['target'] = target;
     }
 
     return jsonld;
@@ -556,4 +558,26 @@ function thingToJson(thing: Thing) : any | undefined {
     }    
 
     return json;
+}
+
+export type SourceType = {
+    text: string,
+    type: string,
+    isJson: boolean
+};
+
+export async function getSource(resource: string) : Promise<SourceType | null> {
+    const result = await fetch(resource);
+
+    if (! isSuccessfulStatusCode(result.status)) {
+        return null;
+    }
+    else {
+        let text = await result.text();
+        return {
+            text: text,
+            type: result.headers.get("content-type"),
+            isJson: result.headers.get("content-type").includes('json')
+        }
+    }
 }
