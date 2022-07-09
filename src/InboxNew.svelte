@@ -24,6 +24,7 @@
     export let profile: ProfileType;
     export let inReplyTo: string;
     export let target : string ;
+    export let targetT : AgentType;
     export let context : ObjectType;
     export let object : ObjectType;
 
@@ -54,12 +55,6 @@
             types: [ 'Person' ]
         };
 
-        let targetT : AgentType = {
-            id: generateIdentifier(),
-            inbox: target,
-            types: [ 'Person' ]
-        };
-
         let notification : ActivityType = {
             id: generateIdentifier() ,
             types: type ,
@@ -69,7 +64,7 @@
             object: object
         };
 
-        let result = sendNotification(inbox, notification);
+        let result = sendNotification(targetT.inbox, notification);
 
         if (! result) {
             error |= SEND_ERROR;
@@ -81,9 +76,9 @@
     }
 
     function validateFields() : number {
-        let error;
+        let error : number;
 
-        if (target && target.match(/^http(s)?:\/\//)) {
+        if (targetT) {
             error &= ~TARGET_ERROR;
         }
         else {
@@ -126,7 +121,7 @@
     <tr>
         <th>Target</th>
         <td>
-            <Target bind:target={target} {profile}/>
+            <Target target={target} bind:targetObject={targetT} {profile}/>
         </td>
         <td>
             {#if error & TARGET_ERROR}

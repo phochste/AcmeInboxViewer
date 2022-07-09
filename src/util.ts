@@ -9,7 +9,7 @@ import { getSolidDataset,
          type SolidDataset,
          type Thing
 } from '@inrupt/solid-client';
-import { FOAF , LDP } from '@inrupt/vocab-common-rdf';
+import { FOAF , LDP , RDF } from '@inrupt/vocab-common-rdf';
 
 /* 
  * See: https://docs.inrupt.com/developer-tools/javascript/client-libraries/tutorial/authenticate-browser/
@@ -53,22 +53,28 @@ export type ProfileType = {
     inbox: string | null,
     storage: string | null,
     knows: string[] | null,
+    types: string[] | null,
     data?: SolidDataset 
 };
 
 export async function fetchUserProfile(webId: string) : Promise<ProfileType> {
-    const dataset      = await getSolidDataset(webId);
-    const me           = getThing(dataset,webId);
-    const givenName    = getString(me,FOAF.givenName);
-    const familyName   = getString(me,FOAF.familyName);
-    const name         = getString(me,FOAF.name);
-    const img          = getUrl(me,FOAF.img);
-    const inbox        = getUrl(me,LDP.inbox);
-    const storage      = getUrl(me,'http://www.w3.org/ns/pim/space#storage');
-    const knows        = getUrlAll(me,FOAF.knows);
+    const dataset = await getSolidDataset(webId);
+    const thing   = getThing(dataset,webId);
+    return profileData(dataset,thing);
+}
+
+function profileData(dataset: SolidDataset, thing: Thing) : ProfileType {
+    const givenName    = getString(thing,FOAF.givenName);
+    const familyName   = getString(thing,FOAF.familyName);
+    const name         = getString(thing,FOAF.name);
+    const img          = getUrl(thing,FOAF.img);
+    const inbox        = getUrl(thing,LDP.inbox);
+    const storage      = getUrl(thing,'http://www.w3.org/ns/pim/space#storage');
+    const knows        = getUrlAll(thing,FOAF.knows);
+    const types        = getUrlAll(thing,RDF.type);
 
     return {
-        webId: webId ,
+        webId: thing.url ,
         givenName: givenName,
         familyName: familyName, 
         name:  name,
@@ -76,6 +82,30 @@ export async function fetchUserProfile(webId: string) : Promise<ProfileType> {
         inbox: inbox ,
         storage: storage ,
         knows: knows ,
+        types: types ,
         data: dataset
     };
+}
+
+export async function fetchKnowsProfile(webId: string, userId: string) : Promise<ProfileType | null> {
+    const dataset      = await getSolidDataset(webId);
+    const me           = getThing(dataset, webId);
+    const knows        = getUrlAll(me,FOAF.knows);
+
+
+    if (! knows) {
+        return null;
+    }
+
+    if (! knows.includes(userId)) {
+        return null;
+    } 
+
+    const thing = getThing(dataset,userId);
+
+    if (! thing) {
+        return null;
+    }
+
+    return profileData(dataset,thing);
 }

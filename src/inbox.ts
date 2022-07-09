@@ -30,10 +30,6 @@ export function fetchWithOptions(myInit: RequestInit) : IFetchFunction {
     };
 }
 
-export function as2(term:string) : string {
-    return 'https://www.w3.org/ns/activitystreams#' + term;
-}
-
 export function prettyThing(thing: Thing) : string {
     if (! thing) {
         return "";
@@ -560,95 +556,4 @@ function thingToJson(thing: Thing) : any | undefined {
     }    
 
     return json;
-}
-
-export type InboxLookupType = {
-    webid: string,
-    type: string,
-    inbox: string,
-    text: string[]
-};
-
-export async function getAllKnownInboxes(webId: string) : Promise<InboxLookupType[]> {
-    const result: InboxLookupType[] = [];
-
-    let profile = await fetchUserProfile(webId);
-
-    let localThing = getThing(profile.data, webId);
-    let inboxType = thing2Inbox(localThing, webId);
-
-    if (inboxType) {
-        result.push(inboxType);
-    }
-
-    if (! profile.knows) {
-        return result;
-    }
-
-    profile.knows.forEach( async (id) => {
-        try {
-            let inboxType : InboxLookupType;
-            let localThing = getThing(profile.data, id);
-            
-            if (localThing) {
-                inboxType = thing2Inbox(localThing,id);
-            }
-
-            // if (! inboxType) {
-            //     let candidate   = await fetchUserProfile(id);
-            //     let remoteThing = getThing(candidate.data, id);
-            //     inboxType = thing2Inbox(remoteThing,id);
-            // }
-            
-            if (inboxType) {
-                result.push(inboxType);
-            }
-            else {
-                console.log(`${id} doesn't have an inbox`);
-            }
-        }
-        catch (e) {
-            console.error(`${id} doesn't have a profile`);
-        }
-    });
-
-    return result;
-}
-
-function thing2Inbox(thing: Thing, webid: string) : InboxLookupType | null {
-    let inbox = getUrl(thing, LDP.inbox);
-
-    if (! inbox) {
-        return null;
-    } 
-
-    let result : InboxLookupType = {
-        type: undefined,
-        webid: webid ,
-        inbox: inbox ,
-        text: []
-    };
-
-    let givenName = getString(thing, FOAF.givenName);
-    let familyName = getString(thing, FOAF.familyName);
-    let label = getString(thing, RDFS.label);
-    let type = getUrl(thing, RDF.type);
-
-    if (givenName) {
-        result.text.push(givenName);
-    }
-
-    if (familyName) {
-        result.text.push(familyName);
-    }
-
-    if (label) {
-        result.text.push(label);
-    }
-
-    if (type) {
-        result.type = type;
-    }
-
-    return result;
 }
