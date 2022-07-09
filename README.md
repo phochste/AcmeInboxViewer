@@ -17,11 +17,11 @@ inbox that is made available on Solid Pods.
 
 # Features
 
-- [] Open inbox
+- [ ] Open inbox
     - [x] Open single inbox via web profile
-    - [] Select inbox from web profile
-    - [] Open inbox by reference
-- [] List inbox resources
+    - [ ] Select inbox from web profile
+    - [ ] Open inbox by reference
+- [ ] List inbox resources
     - [x] List AS2 resources
     - [x] List other resources
     - [x] List resource metadata (modified, url)
@@ -31,9 +31,9 @@ inbox that is made available on Solid Pods.
 - [x] Reload inbox
     - [x] Reload via a button
     - [x] Reload via web sockets
-- [] Paging of inbox resources
+- [ ] Paging of inbox resources
     - [x] Client based paging
-    - [] Server based paging
+    - [ ] Server based paging
 - [x] Delete resources
     - [x] Delete single resources
     - [x] Delete selected resources
