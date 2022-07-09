@@ -28,6 +28,13 @@
         }
     }
 
+    function handleCreate() {
+        if (text) {
+            target = text;
+            getExternalProfile(target);
+        }
+    }
+
     async function getExternalProfile(webId: string) : Promise<void> {
         // First try to find if the local `foaf:knows` contains
         // an inbox for the webId. If not, try to fetch the
@@ -81,6 +88,7 @@
     delay=200
     required={true}
     onChange={handleChange}
+    onCreate={handleCreate}
     />
 <br>
 {#if externalProfile}

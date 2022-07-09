@@ -55,12 +55,15 @@
             types: [ 'Person' ]
         };
 
+        let inReplyTo : string = context ? context.id : null;
+
         let notification : ActivityType = {
             id: generateIdentifier() ,
             types: type ,
             actor: actorT ,
             target: targetT ,
             context: context ,
+            inReplyTo: inReplyTo ,
             object: object
         };
 

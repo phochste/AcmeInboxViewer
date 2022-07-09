@@ -13,6 +13,12 @@
         <th>Id</th>
         <td>{activity.id}</td>
     </tr>
+    {#if activity.inReplyTo}
+    <tr>
+        <th>In Reply To</th>
+        <td>{activity.inReplyTo}</td>
+    </tr> 
+    {/if}
     {#if activity.context}
     <tr>
         <th>Context</th>
@@ -36,12 +42,6 @@
             {/if}
         </td>
     </tr>
-    {/if}
-    {#if activity.inReplyTo}
-    <tr>
-        <th>In Reply To</th>
-        <td>{activity.inReplyTo}</td>
-    </tr> 
     {/if}
     </tbody>    
 </table>
