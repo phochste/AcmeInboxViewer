@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { MessageInfo, ObjectType } from './inbox';
+	import { objectBuilder , type MessageInfo, type ObjectType } from './inbox';
 	import Login from './Login.svelte';
 	import Logout from './Logout.svelte';
 	import InboxList from './InboxList.svelte';
 	import InboxItem from './InboxItem.svelte';
 	import InboxNew from './InboxNew.svelte';
 	import type { ProfileType } from './util';
+	import { AS, RDF } from '@inrupt/vocab-common-rdf';
 
 	export let name: string;
 	
@@ -26,6 +27,26 @@
 		inReplyTo = activity.id;
 		target    = activity.actor.id;
 		context   = activity.object;
+
+		console.log(activity);
+
+		if (activity.types.includes(AS.Offer)) {
+			let objectThing = objectBuilder(activity.id)
+								.addUrl(AS.object,activity.object.id);
+
+			activity.types.forEach( i => {
+				objectThing = objectThing.addUrl(RDF.type,i);
+			});
+
+			object = {
+				id: activity.id ,
+				types: activity.types,
+				thing: objectThing.build()
+			} as ObjectType;
+		}
+		else {
+			object = null;
+		}
 	}
 
 	function handleNew(e) {
