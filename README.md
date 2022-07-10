@@ -27,7 +27,7 @@ inbox that is made available on Solid Pods.
     - [x] List resource metadata (modified, url)
     - [x] List AS2 content (types,actors)
     - [x] Sorted by date
-    - [] Sorted by name,type
+    - [ ] Sorted by name,type
 - [x] Reload inbox
     - [x] Reload via a button
     - [x] Reload via web sockets
@@ -45,6 +45,8 @@ inbox that is made available on Solid Pods.
         - [ ] View object by RDF template
     - [ ] View message source
     - [ ] Open a inbox message via URL
+    - [ ] Validate message
+    - [ ] Validate signature
 - [x] Reply to a message
 - [ ] New message
     - [x] Send a Note
@@ -60,6 +62,7 @@ inbox that is made available on Solid Pods.
     - [x] Select Mellon Activity Subtypes
     - [ ] Add own subtypes
     - [x] Select local resources by autocomplete
+    - [ ] Sign message
 
 
 # Compiling the source code
