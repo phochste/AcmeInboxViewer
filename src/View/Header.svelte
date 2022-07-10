@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { prettyPrintJson } from 'pretty-print-json';
     import { getSource, type ActivityType, type ResourceInfo, type SourceType } from "../inbox";
-    import { Modals, openModal, closeModal, modals } from 'svelte-modals'
+    import { Modals, openModal, closeModal } from 'svelte-modals'
     import Modal from "./Modal.svelte";
     import { prettyUris , prettyName } from "../inbox";
 
@@ -16,8 +15,6 @@
         let content : SourceType = await getSource(resource.url);
         let message;
 
-        console.log(content)
-        
         try {
             if (content.isJson) {
                 message = '<pre>' + JSON.stringify(

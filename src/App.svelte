@@ -28,8 +28,6 @@
 		target    = activity.actor.id;
 		context   = activity.object;
 
-		console.log(activity);
-
 		if (activity.types.includes(AS.Offer)) {
 			let objectThing = objectBuilder(activity.id)
 								.addUrl(AS.object,activity.object.id);
@@ -57,6 +55,15 @@
 		context = undefined;
 	}
 
+	function resetFields() {
+        inReplyTo = null;
+        target = null;
+        context = null;
+        object = null;
+        newMail = false;
+		selected = null;
+    }
+
 </script>
 
 <nav class="navbar navbar-default">
@@ -76,7 +83,7 @@
 
 {#if profile}
   {#if newMail}
-	 <InboxNew inbox={profile.inbox} bind:newMail={newMail} 
+	 <InboxNew inbox={profile.inbox} on:send={resetFields} on:cancel={resetFields}
 	 	{profile} {inReplyTo} {target} {context} {object}/>
   {:else if selected}
      <InboxItem inbox={profile.inbox} bind:selected={selected} {profile} 

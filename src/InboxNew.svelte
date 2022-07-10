@@ -12,6 +12,8 @@
         type AgentType,
         type ObjectType
     } from "./inbox";
+    import { AS } from '@inrupt/vocab-common-rdf';
+    import { createEventDispatcher } from 'svelte';
 
     let error : number ;
 
@@ -21,7 +23,6 @@
     const SEND_ERROR   = 0x08;
 
     export let inbox : string;
-    export let newMail: boolean;
     export let profile: ProfileType;
     export let inReplyTo: string;
     export let originT : AgentType;
@@ -33,6 +34,12 @@
     let notificationType;
     let notificationSubType;
 
+    if (object && object.types.includes(AS.Offer)) {
+        notificationType = AS.Accept;
+    }
+
+    const dispatch = createEventDispatcher();
+
     async function validateAndSend() : Promise<void> {
         error = validateFields();
 
@@ -42,12 +49,12 @@
 
         let type : string[] = [];
 
-        if (notificationType && notificationType.id) {
-            type.push(notificationType.url);
+        if (notificationType) {
+            type.push(notificationType);
         }
 
-        if (notificationSubType && notificationSubType.id) {
-            type.push(notificationSubType.url);
+        if (notificationSubType) {
+            type.push(notificationSubType);
         }
 
         let actorT : AgentType = {
@@ -77,7 +84,9 @@
         }
         else {
             error &= ~SEND_ERROR;
-            newMail = false;
+            targetT = null;
+            originT = null;
+            dispatch('send',notification);
         }
     }
 
@@ -92,7 +101,7 @@
             error |= TARGET_ERROR;
         }
 
-        if (notificationType && notificationType.id > 0) {
+        if (notificationType) {
             error &= ~TYPE_ERROR;
         }
         else {
@@ -110,11 +119,17 @@
 
         return error;
     }
+
+    function handleCancel() {
+        targetT = null;
+        originT = null;
+        dispatch('cancel',{});
+    }
     
 </script>
 
 <button class="btn btn-success" on:click={validateAndSend}>Send</button>
-<button class="btn btn-secondary" on:click={ () => newMail = false}>Cancel</button>
+<button class="btn btn-secondary" on:click={handleCancel}>Cancel</button>
 
 <h4>New notification</h4>
 

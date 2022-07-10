@@ -7,33 +7,34 @@
     import type { ObjectType } from "../inbox";
     import { AS } from '@inrupt/vocab-common-rdf';
 
-    const objectTypes = [
-        { id: 0 , text: 'Note' } ,
-        { id: 1 , text: 'Document' } ,
-        { id: 2 , text: 'Relationship' } 
-    ]
-
     export let profile : ProfileType;
     export let object : ObjectType;
 
-    let selected = objectTypes[0];
+    let objectTypes;
 
     if (object && object.types.includes(AS.Offer)) {
-        selected = { id: 100 , text: 'Offer'}
+        objectTypes = [
+            { id: 0 , text: 'Offer' } 
+        ];
+
+    }
+    else {
+        objectTypes = [
+            { id: 0 , text: 'Note' } ,
+            { id: 1 , text: 'Document' } ,
+            { id: 2 , text: 'Relationship' } 
+        ];
     }
 
+    let selected = objectTypes[0];
 </script>
 
 <p>
-{#if selected.text == 'Offer'}
-    Offer
-{:else}
 <select bind:value={selected}>
     {#each objectTypes as type}
         <option value={type}>{type.text}</option>
     {/each}
 </select>
-{/if}
 </p>
 
 {#if selected.text == 'Note'}
