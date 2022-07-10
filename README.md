@@ -51,7 +51,7 @@ inbox that is made available on Solid Pods.
 - [ ] New message
     - [x] Send a Note
     - [x] Send a Document
-    - [x] Send a Reltionship
+    - [x] Send a Relationship
     - [ ] Send any RDF Form
     - [x] Select target from `foaf:knows` in web profile
     - [ ] Create a new target from web id
