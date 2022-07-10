@@ -17,9 +17,7 @@
         { id: 7 , text: 'http://purl.org/dc/terms/isReplacedBy'} ,
         { id: 8 , text: 'http://purl.org/dc/terms/isVersionOf'} ,
         { id: 9 , text: 'http://purl.org/dc/terms/references'} ,
-        { id: 10 , text: 'http://purl.org/dc/terms/replaces'} ,
-        { id: 11 , text: 'http://purl.org/dc/terms/replaces'} ,
-        { id: 12 , text: 'http://purl.org/dc/terms/replaces'}
+        { id: 10 , text: 'http://purl.org/dc/terms/replaces'} 
     ];
 
     let selected = relationshipTypes[0];
