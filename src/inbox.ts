@@ -16,13 +16,17 @@ import {
     createThing
 } from '@inrupt/solid-client';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchUserProfile, getString } from './util';
-import { FOAF , LDP , RDFS , RDF , AS } from '@inrupt/vocab-common-rdf';
+import { RDF , AS } from '@inrupt/vocab-common-rdf';
 
 export type IFetchFunction = {
     (input: RequestInfo, init?: RequestInit) : Promise<Response>
 };
 
+/**
+ * Create a new fetch functio with options already filled out
+ * @param {RequestInit} myInit - The fetch initialization options
+ * @returns {IFetchFunction} The initialized fetch function
+ */
 export function fetchWithOptions(myInit: RequestInit) : IFetchFunction {
     return (input: RequestInfo, init?: RequestInit) => {
         let mergedInit : RequestInit = {...init,...myInit};
@@ -30,6 +34,11 @@ export function fetchWithOptions(myInit: RequestInit) : IFetchFunction {
     };
 }
 
+/**
+ * Create a HTML version of a Thing
+ * @param {Thing} thing - a solid-client Thing
+ * @returns {string} The HTML representation of the Thing 
+ */
 export function prettyThing(thing: Thing) : string {
     if (! thing) {
         return "";
@@ -56,14 +65,30 @@ export function prettyThing(thing: Thing) : string {
     }
 }
 
+/**
+ * Create a clickable HTTP links
+ * @param {string} html - a HTML fragment
+ * @returns {string} A HTML fragment with clickable HTTP links
+ */
 export function prettyHttp(html: string) : string {
     return html.replace(/(http(s)?[^ ]+)/,"<a href=\"$1\">$1</a>");
 }
 
+/**
+ * Create a pretty format for names
+ * @param {string} name - a name
+ * @returns {string} A pretty representation of the name
+ */
 export function prettyName(name: string) : string {
     return name ? name : 'Unknown';
 }
 
+/**
+ * Create a human friendly representation of URIs
+ * @param {string[]} uris - an array of URIs
+ * @param {string} [join] - a join character
+ * @returns {string[] | string} - A list of human friendly strings or a string when join is used
+ */
 export function prettyUris(uris : string[], join?: string) : string[] | string {
     if (!uris) {
         if (join) {
@@ -82,10 +107,20 @@ export function prettyUris(uris : string[], join?: string) : string[] | string {
     }
 }
 
+/**
+ * Generate a UUID URI
+ * @returns {string} The UUID URI
+ */
 export function generateIdentifier() : string {
     return 'urn:uuid:' + uuidv4();
 }
 
+/**
+ * Send a notification to an inbox
+ * @param {string} inbox - an LDN Inbox URL 
+ * @param {ActivityType} notification - an AS2 activity 
+ * @returns {Promise<boolean>} A boolean success/failure of sending the notification
+ */
 export async function sendNotification(inbox: string, notification: ActivityType) : Promise<boolean> {
     let jsonld = notificationAsJsonld(notification);
 
@@ -113,12 +148,23 @@ export type MessageInfo = {
     activity: Promise<ActivityType | undefined>
 };
 
+/**
+ * Return a solid-client SolidDataset associated with an LDN Inbox
+ * @param {string} inbox - an LDN Inbox URI 
+ * @param {RequestInit} [init] - Fetch request options 
+ * @returns {Promise<SolidDataset & WithServerResourceInfo>} A solid-client SolidDataset
+ */
 export function inboxDataset(inbox: string, init?: RequestInit) : Promise<SolidDataset & WithServerResourceInfo> {
     return getSolidDataset(inbox, {
         fetch: fetchWithOptions(init ? init : {})
     });
 }
 
+/**
+ * Return the contents of an LDN Inbox
+ * @param {string} inbox - an LDN Inbox URI
+ * @returns {Promise<MessageInfo[]>} An array of LDN Inbox resources 
+ */
 export async function loadInbox(inbox: string) : Promise<MessageInfo[]> {
     const dataset = await inboxDataset(inbox, {
         cache: 'no-store'
@@ -146,6 +192,13 @@ export async function loadInbox(inbox: string) : Promise<MessageInfo[]> {
     });
 }
 
+/**
+ * Return one LDN Inbox resource
+ * @param {SolidDataset} dataset - a solid-client SolidDataset 
+ * @param {string} resource - an LDN Inbox resoure URL 
+ * @param {string} [base] - a base URL
+ * @returns {MessageInfo} A message
+ */
 export function loadInboxItem(dataset: SolidDataset, resource: string, base?: string) : MessageInfo {
     let resourceInfo = getResourceInfoFromDataset(dataset, resource, base);
     let activityInfo = loadInboxItemActivity(resource);
@@ -176,12 +229,22 @@ async function loadInboxItemActivity(resource: string) : Promise<ActivityType | 
     }
 }
 
-export async function deleteInboxItem(item : MessageInfo) {
+/**
+ * Delete an LDN Inbox resource
+ * @param {MessageInfo} item - an LDN Inbox resource
+ */
+export async function deleteInboxItem(item : MessageInfo) : Promise<void> {
     await deleteFile(item.resource.url, {
         fetch:fetch
     });
 }
 
+/**
+ * Return the "root" subject of a dataset. This is the subject that is not
+ * the object of any triple in the contained graph(s).
+ * @param {SolidDataset} dataset - a solid-client dataset
+ * @returns {string | undefined} The resolved root URI
+ */
 export function getRootUri(dataset: SolidDataset) : string | undefined {
     const graphs = dataset.graphs;
 
@@ -268,6 +331,13 @@ export type ActivityType = {
     thing?: Thing
 }
 
+/**
+ * Return an AS2 Activity for an LDN Inbox resource
+ * @param {SolidDataset} dataset - a solid-client dataset
+ * @param {string} resourceUrl - a root URI 
+ * @param {string} [baseurl] - the baseURL of the resource 
+ * @returns {ActivityType} An AS2 Activity
+ */
 export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: string, baseurl?: string) : ActivityType | undefined {
     const thing = getThing(dataset, resourceUrl);
     let activityT : ActivityType | undefined;
@@ -398,6 +468,11 @@ export function getActivityFromDataset(dataset: SolidDataset, resourceUrl: strin
     }
 }
 
+/**
+ * Return an AS2 Activity as JSON-LD
+ * @param {ActivityType} notification - an AS2 activity 
+ * @returns {any} A JSON-LD representation
+ */
 export function notificationAsJsonld(notification: ActivityType) : any {
     let jsonld : any = {};
    
@@ -566,6 +641,11 @@ export type SourceType = {
     isJson: boolean
 };
 
+/**
+ * Return the content of a resource
+ * @param {string} resource - a URL 
+ * @returns {Promise<SourceType | null>} A representation of the resource content
+ */
 export async function getSource(resource: string) : Promise<SourceType | null> {
     const result = await fetch(resource);
 
