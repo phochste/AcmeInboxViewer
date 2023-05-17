@@ -6,10 +6,19 @@
     import { createEventDispatcher } from 'svelte';
     import { inboxDataset, loadInboxItem } from './inbox';
     import type { ProfileType } from './util';
+  import { selectedNotificationListState } from './stores';
 
     export let inbox : string;
     export let selected : string;
     export let profile : ProfileType;
+
+    selectedNotificationListState.update(notificationList => {
+        if (notificationList.includes(selected)) {
+            return notificationList
+        } else {
+            return [... notificationList, selected]
+        }
+    })
 
     let item : Promise<MessageInfo> = loadSelected();
 

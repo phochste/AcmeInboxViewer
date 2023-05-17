@@ -1,27 +1,48 @@
 <script lang="ts">
     import Checkbox from './Fields/Checkbox.svelte';
-    import { deleteInboxItem, loadInbox, prettyUris, type MessageInfo } from './inbox';
+    import { deleteInboxItem, loadInbox, prettyUris, type MessageInfo, countInbox } from './inbox';
     import { createEventDispatcher } from 'svelte';
     import { watchContainer } from './container';
-    import type { ProfileType } from './util';
+    import type { InboxListing, ProfileType } from './util';
+    import { selectedInboxState, selectedNotificationListState } from './stores';
 
     const dispatch = createEventDispatcher();
 
     export let inbox : string;
+    export let inboxList : InboxListing[];
     export let socket : WebSocket;
     export let selected : string;
     export let profile : ProfileType;
     export let maxItems : number = 50;
 
+    let inboxCounts: Map<string, number> = new Map(); 
+    
+    let selectedNotifications: string[] = [];
+
     let inboxResources : MessageInfo[] = [];
     let checkAll : boolean = false;
     let checkedMail : Set<MessageInfo> = new Set<MessageInfo>();
+
+    selectedNotificationListState.subscribe(value => {
+        selectedNotifications = value;
+    })
         
     listAll(inbox);
+    countInboxes();
 
-    socket = watchContainer(inbox, async () => {
-        inboxResources = await loadInbox(inbox);
-    });
+    async function countInboxes() {
+        for (let inboxListing of inboxList) {
+            let { total, unread } = await countInbox(inboxListing.inboxUrl, selectedNotifications)
+            console.log("test", inboxCounts[inboxListing.inboxUrl], unread)
+            if (inboxCounts[inboxListing.inboxUrl] !== unread) {
+                inboxCounts[inboxListing.inboxUrl] = unread
+                // Fix for WSS not working
+                if (inboxListing.inboxUrl === inbox) refreshInbox();
+            }
+        }
+    }
+
+    setInterval(countInboxes, 10000)
 
     async function listAll(inbox) : Promise<void> {
         inboxResources = await loadInbox(inbox);
@@ -34,6 +55,10 @@
 
     function handleNew() {
         dispatch('new', {});
+    }
+
+    function handleAdd() {
+        dispatch('add', {});
     }
 
     function handleCheck(e,mail) {
@@ -63,6 +88,21 @@
             });
         }
     }
+
+    /**
+     * I dont know how svelte bindings work, but this should be handled by just page-rerendering I think.
+     * @param inboxListing
+     */
+    function selectInbox(inboxListing: InboxListing) {
+        selectedInboxState.set(inboxListing);
+        inbox = inboxListing.inboxUrl;
+        refreshInbox();
+    }
+
+    function refreshInbox() {
+        console.log(`refreshing inbox for ${inbox}`)
+        listAll(inbox)
+    }
 </script>
 
 <svelte:head>
@@ -70,8 +110,24 @@
 </svelte:head>
 
 <button class="btn btn-primary" on:click={handleNew}>New message</button>
+<button class="btn btn-primary" on:click={handleAdd}>Manage inboxes</button>
 <hr/>
-<button class="btn btn-info" on:click={() => listAll(inbox) }>🔃 {inbox} ({inboxResources.length})</button>
+{#each inboxList as inboxListing}
+    {#if inboxListing.inboxUrl === inbox} 
+        <button class="btn btn-info" on:click={() => refreshInbox() }>
+            🔃 
+            {inbox} 
+            { inboxCounts[inbox] === undefined ? "Loading" : inboxCounts[inbox] } 
+            { inboxCounts[inbox] > 0 ? "❗" : "" } 
+        </button>    
+    {:else}
+        <button class="btn" on:click={() => selectInbox(inboxListing) }>
+            {inboxListing.inboxUrl} 
+            { inboxCounts[inboxListing.inboxUrl] === undefined ? "Loading" : inboxCounts[inboxListing.inboxUrl] } 
+            { inboxCounts[inboxListing.inboxUrl] > 0 ? "❗" : "" } 
+        </button>    
+    {/if}
+{/each}
 <hr/>
 
 <h4>Messages</h4>
@@ -95,7 +151,7 @@
     {#await mail.activity}
        <!-- deliberately left empty--> 
     {:then activity} 
-        <tr on:click={ () => { selected = mail.resource.url } } >
+        <tr on:click={ () => { selected = mail.resource.url } } class="{selectedNotifications.indexOf(mail.resource.url) === -1 ? '' : 'seen'}" >
             {#if activity}
                 <td>
                     <Checkbox 
@@ -144,5 +200,9 @@
     button.delete {
         width: 30px;
         height: 30px;
+    }
+
+    .seen {
+        color: gray;
     }
 </style>

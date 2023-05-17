@@ -10,6 +10,7 @@ import { getSolidDataset,
          type Thing
 } from '@inrupt/solid-client';
 import { FOAF , LDP , RDF } from '@inrupt/vocab-common-rdf';
+import type { MessageInfo } from './inbox';
 
 /* 
  * See: https://docs.inrupt.com/developer-tools/javascript/client-libraries/tutorial/authenticate-browser/
@@ -42,6 +43,16 @@ export function getString(thing: Thing, property: string) : string | null {
     }
 
     return null;
+}
+
+export type InboxListingMessageInfo = {
+    listing: InboxListing,
+    inboxResources: MessageInfo[],
+}
+
+export type InboxListing = {
+    inboxUrl: string,
+    agentId?: string
 }
 
 export type ProfileType = {

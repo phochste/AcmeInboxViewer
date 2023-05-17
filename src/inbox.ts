@@ -209,6 +209,21 @@ export function loadInboxItem(dataset: SolidDataset, resource: string, base?: st
     };
 }
 
+/**
+ * Count the number of items in the requested inbox
+ * @param {string} inbox - the inbox URL
+ * @returns {number} The amount of notifications
+ */
+export async function countInbox(inbox: string, selectedNotifications: string[]) { 
+    const dataset = await inboxDataset(inbox, {
+        cache: 'no-store'
+    });
+    let containedResources = getContainedResourceUrlAll(dataset);
+    let totalCount = containedResources.length;
+    let unreadCount = containedResources.filter(url => selectedNotifications.indexOf(url) === -1).length
+    return { total: totalCount, unread: unreadCount }
+}
+
 async function loadInboxItemActivity(resource: string) : Promise<ActivityType | undefined> {
     try {
         let messageDataset = await inboxDataset(resource);

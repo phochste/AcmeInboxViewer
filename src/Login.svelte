@@ -3,7 +3,11 @@
     import { handleIncomingRedirect, login, onSessionRestore, getDefaultSession, onLogin, onLogout, type ISessionInfo } from '@inrupt/solid-client-authn-browser';
     import { fetchUserProfile , type ProfileType } from './util';
 
-    export let profile :ProfileType;
+	import { profileState } from './stores'; 
+
+    let profile :ProfileType;
+    
+    profileState.subscribe(value => profile = value)
 
     let sessionInfo : Promise<undefined | ISessionInfo>; 
     let issuer : string;
@@ -26,6 +30,8 @@
     onLogout( () => {
         profile = undefined;
         sessionInfo = null;
+
+        profileState.set(profile)
     });
 
     async function sessionChanged(url?: string) {
@@ -35,12 +41,15 @@
       if (url) {
         window.history.pushState({},undefined,url);
       }
+
+      profileState.set(profile)
     }
 
     onMount( () => {
-      sessionInfo = handleIncomingRedirect({ 
-          restorePreviousSession: true,
-          url: window.location.href
+        console.log('here')
+        sessionInfo = handleIncomingRedirect({ 
+            restorePreviousSession: true,
+            url: window.location.href
       });
     });
 </script>
